@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/redirect.js": {
-      "runtime": "nodejs20.x"
-    }
-  }
-}
