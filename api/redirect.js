@@ -1,5 +1,5 @@
 module.exports = async function handler(req, res) {
-  const slot = parseInt(req.query.slot);
+  const slot = parseInt(req.query.slot) || 1;
 
   const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTXl_5Pil_OW6Du4iL5BG7Cnp4_d1eC-2jbfxgS2pax9piqalt0RwAgtyZI6P11bobUQUkkYaOg9RNh/pub?gid=2120963522&single=true&output=csv';
 
@@ -7,6 +7,11 @@ module.exports = async function handler(req, res) {
   const text = await response.text();
 
   const rows = text.trim().split('\n');
+  
+  if (!rows[slot]) {
+    return res.status(400).send('Invalid slot: ' + slot + ' / rows: ' + rows.length);
+  }
+
   const cols = rows[slot].split(',');
   const url = cols[3].replace(/"/g, '').trim();
 
