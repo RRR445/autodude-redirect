@@ -7,13 +7,24 @@ module.exports = async function handler(req, res) {
   const text = await response.text();
 
   const rows = text.trim().split('\n');
+  const row = rows[slot];
   
-  if (!rows[slot]) {
-    return res.status(400).send('Invalid slot: ' + slot + ' / rows: ' + rows.length);
+  // Parsitaan lainausmerkkejä sisältävä CSV oikein
+  const cols = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < row.length; i++) {
+    if (row[i] === '"') {
+      inQuotes = !inQuotes;
+    } else if (row[i] === ',' && !inQuotes) {
+      cols.push(current);
+      current = '';
+    } else {
+      current += row[i];
+    }
   }
+  cols.push(current);
 
-  const cols = rows[slot].split(',');
-  const url = cols[3].replace(/"/g, '').trim();
-
+  const url = cols[3].trim();
   res.redirect(302, url);
 }
