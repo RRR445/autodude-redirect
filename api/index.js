@@ -29,7 +29,8 @@ module.exports = async function handler(req, res) {
     const imageUrl = cols[4].trim();
     res.redirect(302, imageUrl);
   } else {
-    const url = cols[3].trim();
-    res.redirect(302, url);
+    const productUrl = cols[3].trim();
+    const utm = '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot;
+    res.redirect(302, productUrl + utm);
   }
 }
