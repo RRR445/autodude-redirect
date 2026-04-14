@@ -8,8 +8,9 @@ export default async function handler(req, res) {
   const response = await fetch(csvUrl);
   const text = await response.text();
 
-  const rows = text.trim().split('\n').map(r => r.match(/(".*?"|[^,]+)/g).map(v => v.replace(/"/g, '')));
-  const url = rows[slot][3];
+  const rows = text.trim().split('\n');
+  const row = rows[slot].split(',');
+  const url = row[3].replace(/"/g, '').trim();
 
   res.redirect(302, url);
 }
