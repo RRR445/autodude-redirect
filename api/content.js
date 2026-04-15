@@ -24,18 +24,24 @@ module.exports = async function handler(req, res) {
   cols.push(current);
 
   const title = cols[1].trim();
-  const clicks = cols[2].trim();
   const productUrl = cols[3].trim() + '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot;
   const imageUrl = cols[4].trim();
+  const price = cols[5] ? cols[5].trim().replace(' EUR', ' €') : '';
+  const salePrice = cols[6] ? cols[6].trim().replace(' EUR', ' €') : '';
 
-  const html = `<table width="100%" cellpadding="0" cellspacing="0" border="0">
+  const priceHtml = salePrice
+    ? `<span style="text-decoration:line-through;color:#999;font-size:12px;">${price}</span>&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:15px;">${salePrice}</span>`
+    : `<span style="color:#BD4580;font-weight:bold;font-size:15px;">${price}</span>`;
+
+  const html = `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
   <tr>
-    <td width="90" style="padding:0 12px 0 0; vertical-align:top;">
-      <a href="${productUrl}"><img src="${imageUrl}" width="90" height="90" style="display:block; border-radius:6px;" alt="${title}"></a>
+    <td width="90" style="padding:0 14px 0 0;vertical-align:top;">
+      <a href="${productUrl}"><img src="${imageUrl}" width="90" height="90" style="display:block;border-radius:6px;object-fit:cover;" alt="${title}"></a>
     </td>
     <td style="vertical-align:middle;">
-      <p style="margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#222;">${title}</p>
-      <a href="${productUrl}" style="background-color:#BD4580; color:#fff; text-decoration:none; padding:7px 16px; border-radius:4px; font-size:13px; font-weight:bold; display:inline-block; margin-top:8px;">Katso tuote →</a>
+      <p style="margin:0 0 4px 0;font-size:14px;font-weight:bold;color:#222;font-family:Arial,sans-serif;">${title}</p>
+      <p style="margin:0 0 8px 0;font-family:Arial,sans-serif;">${priceHtml}</p>
+      <a href="${productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:7px 16px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
     </td>
   </tr>
 </table>`;
