@@ -74,22 +74,16 @@ module.exports = async function handler(req, res) {
     return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
   }
 
-  // Lue intro (rivi 6) ja kampanja (rivi 7)
+  // Lue rivit
   let introText = '';
   let campaignText = '';
-  if (rows[6]) { const c = parseRow(rows[6]); if (c[0] === 'INTRO') introText = get(c, 1); }
-  if (rows[7]) { const c = parseRow(rows[7]); if (c[0] === 'CAMPAIGN') campaignText = get(c, 1); }
 
-  // Parsitaan kampanjatekstistä pääviesti
-  let campaignBanner = '';
-  if (campaignText) {
-    const tilaMatch = campaignText.match(/TILAA[^!]+!/);
-    const aleMatch = campaignText.match(/ALE\s*-[^!K]+/);
-    if (tilaMatch) {
-      campaignBanner = (aleMatch ? aleMatch[0].trim() + ' · ' : '') + tilaMatch[0].trim();
-    } else {
-      campaignBanner = campaignText.split('!')[0].trim() + '!';
-    }
+  // Rivit 1-5 = tuotteet, rivi 6 = INTRO, rivi 7 = CAMPAIGN_TEXT
+  for (let i = 6; i < rows.length; i++) {
+    if (!rows[i]) continue;
+    const c = parseRow(rows[i]);
+    if (c[0] === 'INTRO') introText = get(c, 1);
+    if (c[0] === 'CAMPAIGN_TEXT') campaignText = get(c, 1);
   }
 
   // Parsitaan tuotteet
@@ -113,6 +107,7 @@ module.exports = async function handler(req, res) {
   const hero = products[0];
   const rest = products.slice(1);
 
+  // ============ OTSIKKO ============
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
@@ -124,17 +119,19 @@ module.exports = async function handler(req, res) {
   </tr>
 </table>`;
 
-  if (campaignBanner) {
+  // ============ KAMPANJABANNNERI ============
+  if (campaignText) {
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#d63737;">
   <tr>
     <td align="center" style="padding:10px 20px;">
-      <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;font-family:Arial,sans-serif;">🎁 ${campaignBanner}</p>
+      <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;font-family:Arial,sans-serif;">🎁 ${campaignText}</p>
     </td>
   </tr>
 </table>`;
   }
 
+  // ============ HERO (#1) ============
   if (hero) {
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-bottom:3px solid #BD4580;">
@@ -166,6 +163,7 @@ module.exports = async function handler(req, res) {
 </table>`;
   }
 
+  // ============ LOPUT (#2-#5) ============
   rest.forEach((p, i) => {
     const bg = i % 2 === 0 ? '#fff' : '#fafafa';
     const borderBottom = i < rest.length - 1 ? 'border-bottom:1px solid #f0f0f0;' : '';
@@ -190,6 +188,7 @@ module.exports = async function handler(req, res) {
 </table>`;
   });
 
+  // ============ CTA ============
   html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;border-top:1px solid #eee;">
   <tr>
