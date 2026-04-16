@@ -23,6 +23,10 @@ module.exports = async function handler(req, res) {
     return cols;
   }
 
+  function get(cols, i) {
+    return (cols[i] && typeof cols[i].trim === 'function') ? cols[i].trim() : '';
+  }
+
   function renderStars(score) {
     const num = parseFloat(score);
     if (!num) return '';
@@ -67,21 +71,24 @@ module.exports = async function handler(req, res) {
 
   function aiBullets(aiText) {
     if (!aiText) return '';
-    // Jos AI-teksti sisältää pisteitä tai pilkkuja, tehdään siitä bulletit
-    const sentences = aiText.split(/[.،,;]\s+/).filter(s => s.trim().length > 5).slice(0, 3);
-    if (sentences.length < 2) {
-      return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
+    // Jos teksti sisältää bullet-merkkejä (•), parsitaan ne listoiksi
+    if (aiText.includes('•')) {
+      const bullets = aiText.split('•').map(s => s.trim()).filter(s => s.length > 2);
+      if (bullets.length > 0) {
+        return `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
+          ${bullets.map(s => `<tr><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 4px 2px 0;vertical-align:top;">✓</td><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 0;">${s}</td></tr>`).join('')}
+        </table>`;
+      }
     }
-    return `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
-      ${sentences.map(s => `<tr><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:1px 0 1px 0;vertical-align:top;">✓&nbsp;</td><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:1px 0;">${s.trim()}</td></tr>`).join('')}
-    </table>`;
+    // Muuten näytetään lause
+    return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
   }
 
-  // Lue intro
+  // Lue intro — rivi 7 (indeksi 6)
   let introText = '';
   if (rows[6]) {
     const introCols = parseRow(rows[6]);
-    if (introCols[0] === 'INTRO') introText = introCols[1] ? introCols[1].trim() : '';
+    if (introCols[0] === 'INTRO') introText = get(introCols, 1);
   }
 
   // Parsitaan tuotteet
@@ -91,15 +98,15 @@ module.exports = async function handler(req, res) {
     const cols = parseRow(rows[slot]);
     products.push({
       slot,
-      title:       cols[1].trim(),
-      productUrl:  cols[3].trim() + '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot,
-      imageUrl:    cols[4].trim(),
-      rawPrice:    cols[5] ? cols[5].trim() : '',
-      rawSale:     cols[6] ? cols[6].trim() : '',
-      aiText:      cols[9] ? cols[9].trim() : '',
-      reviewScore: cols[10] ? cols[10].trim() : '',
-      reviewQuote: cols[11] ? cols[11].trim() : '',
-      reviewCount: cols[12] ? cols[12].trim() : '',
+      title:       get(cols, 1),
+      productUrl:  get(cols, 3) + '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot,
+      imageUrl:    get(cols, 4),
+      rawPrice:    get(cols, 5),
+      rawSale:     get(cols, 6),
+      aiText:      get(cols, 9),
+      reviewScore: get(cols, 10),
+      reviewQuote: get(cols, 11),
+      reviewCount: get(cols, 12),
     });
   }
 
@@ -123,12 +130,12 @@ module.exports = async function handler(req, res) {
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-bottom:3px solid #BD4580;">
   <tr>
-    <td style="padding:16px 20px 16px 20px;">
-      <p style="margin:0 0 6px 0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">🏆 #1 Katsotuimmat tällä viikolla</p>
+    <td style="padding:16px 20px 8px 20px;">
+      <p style="margin:0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">🏆 #1 Katsotuimmat tällä viikolla</p>
     </td>
   </tr>
   <tr>
-    <td style="padding:0 20px 20px 20px;">
+    <td style="padding:8px 20px 20px 20px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td width="160" style="vertical-align:middle;padding-right:16px;">
@@ -150,7 +157,7 @@ module.exports = async function handler(req, res) {
 </table>`;
   }
 
-  // ============ LOPUT (#2-#5) kompaktina listana ============
+  // ============ LOPUT (#2-#5) ============
   rest.forEach((p, i) => {
     const bg = i % 2 === 0 ? '#fff' : '#fafafa';
     const borderBottom = i < rest.length - 1 ? 'border-bottom:1px solid #f0f0f0;' : '';
