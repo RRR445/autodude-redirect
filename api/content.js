@@ -5,8 +5,6 @@ module.exports = async function handler(req, res) {
   const text = await response.text();
   const rows = text.trim().split('\n');
 
-  const rankLabels = ['', '👀 #1 Katsotuimmat', '👀 #2', '👀 #3', '👀 #4', '👀 #5'];
-
   function parseRow(row) {
     const cols = [];
     let current = '';
@@ -32,20 +30,83 @@ module.exports = async function handler(req, res) {
     let stars = '';
     for (let i = 0; i < 5; i++) {
       stars += i < full
-        ? '<span style="color:#BD4580;font-size:13px;">★</span>'
-        : '<span style="color:#ddd;font-size:13px;">★</span>';
+        ? '<span style="color:#BD4580;font-size:12px;">★</span>'
+        : '<span style="color:#ddd;font-size:12px;">★</span>';
     }
     return stars;
   }
 
+  function discountBadge(rawPrice, rawSale) {
+    const p = parseFloat(rawPrice);
+    const s = parseFloat(rawSale);
+    if (!rawSale || s >= p) return '';
+    const pct = Math.round((1 - s / p) * 100);
+    return `<span style="background:#BD4580;color:#fff;font-size:11px;font-weight:bold;font-family:Arial,sans-serif;padding:2px 7px;border-radius:3px;margin-left:6px;">-${pct}%</span>`;
+  }
+
+  function priceBlock(rawPrice, rawSale, large) {
+    const p = parseFloat(rawPrice);
+    const s = parseFloat(rawSale);
+    const hasDiscount = rawSale && s < p;
+    const price = rawPrice.replace(' EUR', ' €');
+    const sale = rawSale.replace(' EUR', ' €');
+    const mainSize = large ? '22px' : '17px';
+    const oldSize = large ? '13px' : '12px';
+    if (hasDiscount) {
+      return `<span style="text-decoration:line-through;color:#aaa;font-size:${oldSize};font-family:Arial,sans-serif;">${price}</span>&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:${mainSize};font-family:Arial,sans-serif;">${sale}</span>${discountBadge(rawPrice, rawSale)}`;
+    }
+    return `<span style="color:#BD4580;font-weight:bold;font-size:${mainSize};font-family:Arial,sans-serif;">${price}</span>`;
+  }
+
+  function reviewLine(score, count) {
+    if (!score) return '';
+    return `<p style="margin:0 0 6px 0;font-size:11px;font-family:Arial,sans-serif;">
+      ${renderStars(score)}&nbsp;<span style="color:#888;">${parseFloat(score).toFixed(1)} (${count} arvostelua)</span>
+    </p>`;
+  }
+
+  function aiBullets(aiText) {
+    if (!aiText) return '';
+    // Jos AI-teksti sisältää pisteitä tai pilkkuja, tehdään siitä bulletit
+    const sentences = aiText.split(/[.،,;]\s+/).filter(s => s.trim().length > 5).slice(0, 3);
+    if (sentences.length < 2) {
+      return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
+    }
+    return `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
+      ${sentences.map(s => `<tr><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:1px 0 1px 0;vertical-align:top;">✓&nbsp;</td><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:1px 0;">${s.trim()}</td></tr>`).join('')}
+    </table>`;
+  }
+
+  // Lue intro
   let introText = '';
   if (rows[6]) {
     const introCols = parseRow(rows[6]);
-    if (introCols[0] === 'INTRO') {
-      introText = introCols[1] ? introCols[1].trim() : '';
-    }
+    if (introCols[0] === 'INTRO') introText = introCols[1] ? introCols[1].trim() : '';
   }
 
+  // Parsitaan tuotteet
+  const products = [];
+  for (let slot = 1; slot <= 5; slot++) {
+    if (!rows[slot]) continue;
+    const cols = parseRow(rows[slot]);
+    products.push({
+      slot,
+      title:       cols[1].trim(),
+      productUrl:  cols[3].trim() + '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot,
+      imageUrl:    cols[4].trim(),
+      rawPrice:    cols[5] ? cols[5].trim() : '',
+      rawSale:     cols[6] ? cols[6].trim() : '',
+      aiText:      cols[9] ? cols[9].trim() : '',
+      reviewScore: cols[10] ? cols[10].trim() : '',
+      reviewQuote: cols[11] ? cols[11].trim() : '',
+      reviewCount: cols[12] ? cols[12].trim() : '',
+    });
+  }
+
+  const hero = products[0];
+  const rest = products.slice(1);
+
+  // ============ OTSIKKO ============
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
@@ -57,64 +118,66 @@ module.exports = async function handler(req, res) {
   </tr>
 </table>`;
 
-  for (let slot = 1; slot <= 5; slot++) {
-    if (!rows[slot]) continue;
-    const cols = parseRow(rows[slot]);
-
-    const title       = cols[1].trim();
-    const productUrl  = cols[3].trim() + '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot;
-    const imageUrl    = cols[4].trim();
-    const rawPrice    = cols[5] ? cols[5].trim() : '';
-    const rawSale     = cols[6] ? cols[6].trim() : '';
-    const aiText      = cols[9] ? cols[9].trim() : '';
-    const reviewScore = cols[10] ? cols[10].trim() : '';
-    const reviewQuote = cols[11] ? cols[11].trim() : '';
-    const reviewCount = cols[12] ? cols[12].trim() : '';
-
-    const priceNum    = parseFloat(rawPrice);
-    const saleNum     = parseFloat(rawSale);
-    const hasDiscount = rawSale && saleNum < priceNum;
-
-    const price     = rawPrice.replace(' EUR', ' €');
-    const salePrice = rawSale.replace(' EUR', ' €');
-
-    const priceHtml = hasDiscount
-      ? `<span style="text-decoration:line-through;color:#aaa;font-size:12px;font-family:Arial,sans-serif;">${price}</span>&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:17px;font-family:Arial,sans-serif;">${salePrice}</span>`
-      : `<span style="color:#BD4580;font-weight:bold;font-size:17px;font-family:Arial,sans-serif;">${price}</span>`;
-
-    const reviewHtml = reviewScore ? `
-      <p style="margin:0 0 2px 0;font-size:10px;font-weight:bold;color:#2a7a2a;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:0.5px;">✅ Vahvistettu asiakasarvostelu</p>
-      <p style="margin:0 0 2px 0;font-size:12px;font-family:Arial,sans-serif;">
-        ${renderStars(reviewScore)}&nbsp;<span style="color:#888;">${parseFloat(reviewScore).toFixed(1)} (${reviewCount} arvostelua)</span>
-      </p>
-      <p style="margin:0 0 6px 0;font-size:11px;color:#555;font-family:Arial,sans-serif;font-style:italic;">"${reviewQuote}"</p>` : '';
-
-    const borderBottom = slot < 5 ? 'border-bottom:1px solid #f0f0f0;' : '';
-
+  // ============ HERO (#1) ============
+  if (hero) {
     html += `
-<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;${borderBottom}">
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-bottom:3px solid #BD4580;">
   <tr>
-    <td width="90" style="padding:12px 12px 12px 20px;vertical-align:middle;">
-      <a href="${productUrl}">
-        <img src="${imageUrl}" width="90" height="90" style="display:block;border-radius:6px;object-fit:cover;" alt="${title}">
-      </a>
+    <td style="padding:16px 20px 16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">🏆 #1 Katsotuimmat tällä viikolla</p>
     </td>
-    <td style="padding:12px 0 12px 0;vertical-align:top;">
-      <p style="margin:0 0 2px 0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">${rankLabels[slot]}</p>
-      <p style="margin:0 0 5px 0;font-size:14px;font-weight:bold;color:#111;line-height:1.3;font-family:Arial,sans-serif;">${title}</p>
-      ${reviewHtml}
-      <p style="margin:0 0 6px 0;font-size:12px;color:#666;line-height:1.5;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>
-    </td>
-    <td width="140" style="padding:12px 20px 12px 8px;vertical-align:bottom;text-align:right;white-space:nowrap;">
-      <p style="margin:0 0 8px 0;text-align:right;">${priceHtml}</p>
-      <a href="${productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:7px 16px;border-radius:4px;font-size:12px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a>
+  </tr>
+  <tr>
+    <td style="padding:0 20px 20px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td width="160" style="vertical-align:middle;padding-right:16px;">
+            <a href="${hero.productUrl}">
+              <img src="${hero.imageUrl}" width="160" height="160" style="display:block;border-radius:8px;object-fit:cover;" alt="${hero.title}">
+            </a>
+          </td>
+          <td style="vertical-align:top;">
+            <p style="margin:0 0 6px 0;font-size:15px;font-weight:bold;color:#111;line-height:1.3;font-family:Arial,sans-serif;">${hero.title}</p>
+            ${reviewLine(hero.reviewScore, hero.reviewCount)}
+            ${aiBullets(hero.aiText)}
+            <p style="margin:0 0 12px 0;">${priceBlock(hero.rawPrice, hero.rawSale, true)}</p>
+            <a href="${hero.productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
 </table>`;
   }
 
+  // ============ LOPUT (#2-#5) kompaktina listana ============
+  rest.forEach((p, i) => {
+    const bg = i % 2 === 0 ? '#fff' : '#fafafa';
+    const borderBottom = i < rest.length - 1 ? 'border-bottom:1px solid #f0f0f0;' : '';
+    html += `
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:${bg};${borderBottom}">
+  <tr>
+    <td width="80" style="padding:10px 10px 10px 20px;vertical-align:middle;">
+      <a href="${p.productUrl}">
+        <img src="${p.imageUrl}" width="75" height="75" style="display:block;border-radius:6px;object-fit:cover;" alt="${p.title}">
+      </a>
+    </td>
+    <td style="padding:10px 0;vertical-align:middle;">
+      <p style="margin:0 0 2px 0;font-size:9px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">#${p.slot}</p>
+      <p style="margin:0 0 3px 0;font-size:13px;font-weight:bold;color:#111;line-height:1.3;font-family:Arial,sans-serif;">${p.title}</p>
+      ${reviewLine(p.reviewScore, p.reviewCount)}
+    </td>
+    <td width="130" style="padding:10px 20px 10px 8px;vertical-align:middle;text-align:right;white-space:nowrap;">
+      <p style="margin:0 0 8px 0;text-align:right;">${priceBlock(p.rawPrice, p.rawSale, false)}</p>
+      <a href="${p.productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a>
+    </td>
+  </tr>
+</table>`;
+  });
+
+  // ============ CTA ============
   html += `
-<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-top:1px solid #eee;">
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;border-top:1px solid #eee;">
   <tr>
     <td align="center" style="padding:16px 20px;">
       <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:11px 28px;border-radius:4px;font-size:14px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso koko valikoima →</a>
