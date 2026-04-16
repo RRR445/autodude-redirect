@@ -10,14 +10,9 @@ module.exports = async function handler(req, res) {
     let current = '';
     let inQuotes = false;
     for (let i = 0; i < row.length; i++) {
-      if (row[i] === '"') {
-        inQuotes = !inQuotes;
-      } else if (row[i] === ',' && !inQuotes) {
-        cols.push(current);
-        current = '';
-      } else {
-        current += row[i];
-      }
+      if (row[i] === '"') { inQuotes = !inQuotes; }
+      else if (row[i] === ',' && !inQuotes) { cols.push(current); current = ''; }
+      else { current += row[i]; }
     }
     cols.push(current);
     return cols;
@@ -33,9 +28,7 @@ module.exports = async function handler(req, res) {
     const full = Math.round(num);
     let stars = '';
     for (let i = 0; i < 5; i++) {
-      stars += i < full
-        ? '<span style="color:#BD4580;font-size:12px;">★</span>'
-        : '<span style="color:#ddd;font-size:12px;">★</span>';
+      stars += i < full ? '<span style="color:#BD4580;font-size:12px;">★</span>' : '<span style="color:#ddd;font-size:12px;">★</span>';
     }
     return stars;
   }
@@ -64,33 +57,39 @@ module.exports = async function handler(req, res) {
 
   function reviewLine(score, count) {
     if (!score) return '';
-    return `<p style="margin:0 0 6px 0;font-size:11px;font-family:Arial,sans-serif;">
-      ${renderStars(score)}&nbsp;<span style="color:#888;">${parseFloat(score).toFixed(1)} (${count} arvostelua)</span>
-    </p>`;
+    return `<p style="margin:0 0 6px 0;font-size:11px;font-family:Arial,sans-serif;">${renderStars(score)}&nbsp;<span style="color:#888;">${parseFloat(score).toFixed(1)} (${count} arvostelua)</span></p>`;
   }
 
   function aiBullets(aiText) {
     if (!aiText) return '';
     let bullets = [];
-    // Parsitaan | -erottimella (Apps Script poistaa rivinvaihdot)
     if (aiText.includes(' | ')) {
       bullets = aiText.split(' | ').map(s => s.replace(/^•\s*/, '').trim()).filter(s => s.length > 2);
     } else if (aiText.includes('•')) {
       bullets = aiText.split('•').map(s => s.trim()).filter(s => s.length > 2);
     }
     if (bullets.length > 0) {
-      return `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
-        ${bullets.map(s => `<tr><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 4px 2px 0;vertical-align:top;">✓</td><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 0;">${s}</td></tr>`).join('')}
-      </table>`;
+      return `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">${bullets.map(s => `<tr><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 4px 2px 0;vertical-align:top;">✓</td><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 0;">${s}</td></tr>`).join('')}</table>`;
     }
     return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
   }
 
-  // Lue intro — rivi 7 (indeksi 6)
+  // Lue intro (rivi 6) ja kampanja (rivi 7)
   let introText = '';
-  if (rows[6]) {
-    const introCols = parseRow(rows[6]);
-    if (introCols[0] === 'INTRO') introText = get(introCols, 1);
+  let campaignText = '';
+  if (rows[6]) { const c = parseRow(rows[6]); if (c[0] === 'INTRO') introText = get(c, 1); }
+  if (rows[7]) { const c = parseRow(rows[7]); if (c[0] === 'CAMPAIGN') campaignText = get(c, 1); }
+
+  // Parsitaan kampanjatekstistä pääviesti
+  let campaignBanner = '';
+  if (campaignText) {
+    const tilaMatch = campaignText.match(/TILAA[^!]+!/);
+    const aleMatch = campaignText.match(/ALE\s*-[^!K]+/);
+    if (tilaMatch) {
+      campaignBanner = (aleMatch ? aleMatch[0].trim() + ' · ' : '') + tilaMatch[0].trim();
+    } else {
+      campaignBanner = campaignText.split('!')[0].trim() + '!';
+    }
   }
 
   // Parsitaan tuotteet
@@ -107,7 +106,6 @@ module.exports = async function handler(req, res) {
       rawSale:     get(cols, 6),
       aiText:      get(cols, 9),
       reviewScore: get(cols, 10),
-      reviewQuote: get(cols, 11),
       reviewCount: get(cols, 12),
     });
   }
@@ -115,7 +113,6 @@ module.exports = async function handler(req, res) {
   const hero = products[0];
   const rest = products.slice(1);
 
-  // ============ OTSIKKO ============
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
@@ -127,7 +124,17 @@ module.exports = async function handler(req, res) {
   </tr>
 </table>`;
 
-  // ============ HERO (#1) ============
+  if (campaignBanner) {
+    html += `
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#d63737;">
+  <tr>
+    <td align="center" style="padding:10px 20px;">
+      <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;font-family:Arial,sans-serif;">🎁 ${campaignBanner}</p>
+    </td>
+  </tr>
+</table>`;
+  }
+
   if (hero) {
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-bottom:3px solid #BD4580;">
@@ -159,7 +166,6 @@ module.exports = async function handler(req, res) {
 </table>`;
   }
 
-  // ============ LOPUT (#2-#5) ============
   rest.forEach((p, i) => {
     const bg = i % 2 === 0 ? '#fff' : '#fafafa';
     const borderBottom = i < rest.length - 1 ? 'border-bottom:1px solid #f0f0f0;' : '';
@@ -184,7 +190,6 @@ module.exports = async function handler(req, res) {
 </table>`;
   });
 
-  // ============ CTA ============
   html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;border-top:1px solid #eee;">
   <tr>
