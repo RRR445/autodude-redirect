@@ -5,7 +5,7 @@ module.exports = async function handler(req, res) {
   const text = await response.text();
   const rows = text.trim().split('\n');
 
-  const rankLabels = ['', '🥇 #1 Suosituin', '🥈 #2', '🥉 #3', '⭐ #4', '⭐ #5'];
+  const rankLabels = ['', '👀 #1 Katsotuimmat', '👀 #2', '👀 #3', '👀 #4', '👀 #5'];
 
   function parseRow(row) {
     const cols = [];
@@ -51,8 +51,8 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
     <td style="padding:28px 24px 20px 24px;border-bottom:3px solid #BD4580;">
-      <p style="margin:0 0 6px 0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Viikon tilastot puhuvat puolestaan</p>
-      <h2 style="margin:0 0 12px 0;font-size:24px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">🔥 Nämä tuotteet kiinnostavat eniten juuri nyt</h2>
+      <p style="margin:0 0 6px 0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Eniten kiinnostavat juuri nyt</p>
+      <h2 style="margin:0 0 12px 0;font-size:24px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Nämä tuotteet puhuttavat tällä viikolla</h2>
       <p style="margin:0;font-size:14px;color:#555;line-height:1.6;font-family:Arial,sans-serif;">${introText}</p>
     </td>
   </tr>
@@ -119,8 +119,8 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-top:1px solid #eee;">
   <tr>
     <td align="center" style="padding:24px;">
-      <p style="margin:0 0 14px 0;font-size:13px;color:#777;font-family:Arial,sans-serif;">Haluatko nähdä koko valikoiman suosituimmat?</p>
-      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:13px 36px;border-radius:4px;font-size:15px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso kaikki suosituimmat →</a>
+      <p style="margin:0 0 14px 0;font-size:13px;color:#777;font-family:Arial,sans-serif;">Katso mitä muut autoilijat selailevat juuri nyt.</p>
+      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:13px 36px;border-radius:4px;font-size:15px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso kaikki kiinnostavimmat →</a>
     </td>
   </tr>
 </table>`;
