@@ -32,13 +32,12 @@ module.exports = async function handler(req, res) {
     let stars = '';
     for (let i = 0; i < 5; i++) {
       stars += i < full
-        ? '<span style="color:#BD4580;font-size:15px;">★</span>'
-        : '<span style="color:#ddd;font-size:15px;">★</span>';
+        ? '<span style="color:#BD4580;font-size:13px;">★</span>'
+        : '<span style="color:#ddd;font-size:13px;">★</span>';
     }
     return stars;
   }
 
-  // Lue intro — rivi 7 (indeksi 6)
   let introText = '';
   if (rows[6]) {
     const introCols = parseRow(rows[6]);
@@ -50,10 +49,10 @@ module.exports = async function handler(req, res) {
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
-    <td style="padding:28px 24px 20px 24px;border-bottom:3px solid #BD4580;">
-      <p style="margin:0 0 6px 0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Eniten kiinnostavat juuri nyt</p>
-      <h2 style="margin:0 0 12px 0;font-size:24px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Nämä tuotteet puhuttavat tällä viikolla</h2>
-      <p style="margin:0;font-size:14px;color:#555;line-height:1.6;font-family:Arial,sans-serif;">${introText}</p>
+    <td style="padding:20px 20px 14px 20px;border-bottom:3px solid #BD4580;">
+      <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Eniten kiinnostavat juuri nyt</p>
+      <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Nämä tuotteet puhuttavat tällä viikolla</h2>
+      <p style="margin:0;font-size:13px;color:#666;line-height:1.5;font-family:Arial,sans-serif;">${introText}</p>
     </td>
   </tr>
 </table>`;
@@ -80,36 +79,36 @@ module.exports = async function handler(req, res) {
     const salePrice = rawSale.replace(' EUR', ' €');
 
     const priceHtml = hasDiscount
-      ? `<span style="text-decoration:line-through;color:#aaa;font-size:13px;font-family:Arial,sans-serif;">${price}</span>&nbsp;&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:20px;font-family:Arial,sans-serif;">${salePrice}</span>`
-      : `<span style="color:#BD4580;font-weight:bold;font-size:20px;font-family:Arial,sans-serif;">${price}</span>`;
+      ? `<span style="text-decoration:line-through;color:#aaa;font-size:12px;font-family:Arial,sans-serif;">${price}</span>&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:17px;font-family:Arial,sans-serif;">${salePrice}</span>`
+      : `<span style="color:#BD4580;font-weight:bold;font-size:17px;font-family:Arial,sans-serif;">${price}</span>`;
 
-    const starsHtml = reviewScore ? `
-      <p style="margin:0 0 4px 0;">
-        ${renderStars(reviewScore)}
-        <span style="font-size:12px;color:#777;font-family:Arial,sans-serif;margin-left:4px;">${parseFloat(reviewScore).toFixed(1)} / 5 (${reviewCount} arvostelua)</span>
-      </p>` : '';
-
-    const quoteHtml = reviewQuote ? `
-      <p style="margin:0 0 10px 0;font-size:12px;color:#777;font-family:Arial,sans-serif;font-style:italic;">"${reviewQuote}"</p>` : '';
+    const reviewHtml = reviewScore ? `
+      <p style="margin:0 0 2px 0;font-size:12px;font-family:Arial,sans-serif;">
+        ${renderStars(reviewScore)}&nbsp;<span style="color:#888;">${parseFloat(reviewScore).toFixed(1)} (${reviewCount} arvostelua)</span>
+      </p>
+      <p style="margin:0 0 8px 0;font-size:11px;color:#999;font-family:Arial,sans-serif;font-style:italic;">"${reviewQuote}"</p>` : '';
 
     const borderBottom = slot < 5 ? 'border-bottom:1px solid #f0f0f0;' : '';
 
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;${borderBottom}">
   <tr>
-    <td width="120" style="padding:20px 16px 20px 24px;vertical-align:top;">
+    <td width="90" style="padding:12px 12px 12px 20px;vertical-align:top;">
       <a href="${productUrl}">
-        <img src="${imageUrl}" width="120" height="120" style="display:block;border-radius:8px;object-fit:cover;" alt="${title}">
+        <img src="${imageUrl}" width="90" height="90" style="display:block;border-radius:6px;object-fit:cover;" alt="${title}">
       </a>
     </td>
-    <td style="padding:20px 24px 20px 0;vertical-align:middle;">
-      <p style="margin:0 0 4px 0;font-size:11px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">${rankLabels[slot]}</p>
-      <p style="margin:0 0 8px 0;font-size:15px;font-weight:bold;color:#111;line-height:1.4;font-family:Arial,sans-serif;">${title}</p>
-      <p style="margin:0 0 10px 0;font-size:13px;color:#555;line-height:1.6;font-family:Arial,sans-serif;font-style:italic;border-left:3px solid #BD4580;padding-left:10px;">${aiText}</p>
-      ${starsHtml}
-      ${quoteHtml}
-      <p style="margin:0 0 14px 0;">${priceHtml}</p>
-      <a href="${productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:9px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
+    <td style="padding:12px 20px 12px 0;vertical-align:middle;">
+      <p style="margin:0 0 2px 0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">${rankLabels[slot]}</p>
+      <p style="margin:0 0 5px 0;font-size:14px;font-weight:bold;color:#111;line-height:1.3;font-family:Arial,sans-serif;">${title}</p>
+      <p style="margin:0 0 6px 0;font-size:12px;color:#666;line-height:1.5;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>
+      ${reviewHtml}
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align:middle;padding-right:12px;">${priceHtml}</td>
+          <td><a href="${productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:7px 16px;border-radius:4px;font-size:12px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a></td>
+        </tr>
+      </table>
     </td>
   </tr>
 </table>`;
@@ -118,9 +117,8 @@ module.exports = async function handler(req, res) {
   html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-top:1px solid #eee;">
   <tr>
-    <td align="center" style="padding:24px;">
-      <p style="margin:0 0 14px 0;font-size:13px;color:#777;font-family:Arial,sans-serif;">Katso mitä muut autoilijat selailevat juuri nyt.</p>
-      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:13px 36px;border-radius:4px;font-size:15px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso kaikki kiinnostavimmat →</a>
+    <td align="center" style="padding:16px 20px;">
+      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:11px 28px;border-radius:4px;font-size:14px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso kaikki kiinnostavimmat →</a>
     </td>
   </tr>
 </table>`;
