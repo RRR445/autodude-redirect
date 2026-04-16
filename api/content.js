@@ -37,11 +37,13 @@ module.exports = async function handler(req, res) {
   for (let slot = 1; slot <= 5; slot++) {
     if (!rows[slot]) continue;
     const cols = parseRow(rows[slot]);
-    const title = cols[1].trim();
+
+    const title     = cols[1].trim();
     const productUrl = cols[3].trim() + '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot;
-    const imageUrl = cols[4].trim();
-    const price = cols[5] ? cols[5].trim().replace(' EUR', ' €') : '';
+    const imageUrl  = cols[4].trim();
+    const price     = cols[5] ? cols[5].trim().replace(' EUR', ' €') : '';
     const salePrice = cols[6] ? cols[6].trim().replace(' EUR', ' €') : '';
+    const aiText    = cols[9] ? cols[9].trim() : '';
 
     const priceHtml = salePrice
       ? `<span style="text-decoration:line-through;color:#aaa;font-size:13px;font-family:Arial,sans-serif;">${price}</span>&nbsp;&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:18px;font-family:Arial,sans-serif;">${salePrice}</span>`
@@ -51,14 +53,15 @@ module.exports = async function handler(req, res) {
 
     html += `<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;${borderBottom}">
   <tr>
-    <td width="110" style="padding:14px 14px 14px 0;vertical-align:top;">
+    <td width="110" style="padding:16px 14px 16px 0;vertical-align:top;">
       <a href="${productUrl}">
-        <img src="${imageUrl}" width="110" height="110" style="display:block;border-radius:6px;object-fit:cover;" alt="${title}">
+        <img src="${imageUrl}" width="110" height="110" style="display:block;border-radius:8px;object-fit:cover;" alt="${title}">
       </a>
     </td>
-    <td style="padding:14px 0;vertical-align:middle;">
-      <p style="margin:0 0 4px 0;font-size:11px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">${rankLabels[slot]}</p>
+    <td style="padding:16px 0;vertical-align:middle;">
+      <p style="margin:0 0 3px 0;font-size:11px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">${rankLabels[slot]}</p>
       <p style="margin:0 0 6px 0;font-size:14px;font-weight:bold;color:#222;line-height:1.4;font-family:Arial,sans-serif;">${title}</p>
+      <p style="margin:0 0 8px 0;font-size:13px;color:#555;line-height:1.5;font-family:Arial,sans-serif;font-style:italic;">${aiText}</p>
       <p style="margin:0 0 10px 0;">${priceHtml}</p>
       <a href="${productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
     </td>
