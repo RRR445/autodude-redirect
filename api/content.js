@@ -50,8 +50,8 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
     <td style="padding:20px 20px 14px 20px;border-bottom:3px solid #BD4580;">
-      <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Eniten kiinnostavat juuri nyt</p>
-      <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Nämä tuotteet puhuttavat tällä viikolla</h2>
+      <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Näitä tutkitaan poikkeuksellisen paljon</p>
+      <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Nämä kiinnosti Google haussa eilen!</h2>
       <p style="margin:0;font-size:13px;color:#666;line-height:1.5;font-family:Arial,sans-serif;">${introText}</p>
     </td>
   </tr>
@@ -118,7 +118,7 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-top:1px solid #eee;">
   <tr>
     <td align="center" style="padding:16px 20px;">
-      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:11px 28px;border-radius:4px;font-size:14px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso kaikki suosituimmat tuotteet →</a>
+      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:11px 28px;border-radius:4px;font-size:14px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso koko valikoima →</a>
     </td>
   </tr>
 </table>`;
