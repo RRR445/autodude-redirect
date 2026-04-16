@@ -86,7 +86,7 @@ module.exports = async function handler(req, res) {
       <p style="margin:0 0 2px 0;font-size:12px;font-family:Arial,sans-serif;">
         ${renderStars(reviewScore)}&nbsp;<span style="color:#888;">${parseFloat(reviewScore).toFixed(1)} (${reviewCount} arvostelua)</span>
       </p>
-      <p style="margin:0 0 8px 0;font-size:11px;color:#999;font-family:Arial,sans-serif;font-style:italic;">"${reviewQuote}"</p>` : '';
+      <p style="margin:0 0 6px 0;font-size:11px;color:#999;font-family:Arial,sans-serif;font-style:italic;">"${reviewQuote}"</p>` : '';
 
     const borderBottom = slot < 5 ? 'border-bottom:1px solid #f0f0f0;' : '';
 
@@ -98,17 +98,15 @@ module.exports = async function handler(req, res) {
         <img src="${imageUrl}" width="90" height="90" style="display:block;border-radius:6px;object-fit:cover;" alt="${title}">
       </a>
     </td>
-    <td style="padding:12px 20px 12px 0;vertical-align:middle;">
+    <td style="padding:12px 0 12px 0;vertical-align:top;">
       <p style="margin:0 0 2px 0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">${rankLabels[slot]}</p>
       <p style="margin:0 0 5px 0;font-size:14px;font-weight:bold;color:#111;line-height:1.3;font-family:Arial,sans-serif;">${title}</p>
       <p style="margin:0 0 6px 0;font-size:12px;color:#666;line-height:1.5;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>
       ${reviewHtml}
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="vertical-align:middle;padding-right:12px;">${priceHtml}</td>
-          <td><a href="${productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:7px 16px;border-radius:4px;font-size:12px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a></td>
-        </tr>
-      </table>
+    </td>
+    <td width="140" style="padding:12px 20px 12px 8px;vertical-align:bottom;text-align:right;white-space:nowrap;">
+      <p style="margin:0 0 8px 0;text-align:right;">${priceHtml}</p>
+      <a href="${productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:7px 16px;border-radius:4px;font-size:12px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a>
     </td>
   </tr>
 </table>`;
