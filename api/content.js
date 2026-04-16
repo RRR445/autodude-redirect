@@ -118,7 +118,7 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-top:1px solid #eee;">
   <tr>
     <td align="center" style="padding:16px 20px;">
-      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:11px 28px;border-radius:4px;font-size:14px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso kaikki kiinnostavimmat →</a>
+      <a href="https://www.autodude.fi/fi/c/autonhoitotuotteet?sort=popularity&utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=cta" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:11px 28px;border-radius:4px;font-size:14px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso kaikki suosituimmat tuotteet →</a>
     </td>
   </tr>
 </table>`;
