@@ -93,7 +93,7 @@ module.exports = async function handler(req, res) {
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;${borderBottom}">
   <tr>
-    <td width="90" style="padding:12px 12px 12px 20px;vertical-align:top;">
+    <td width="90" style="padding:12px 12px 12px 20px;vertical-align:middle;">
       <a href="${productUrl}">
         <img src="${imageUrl}" width="90" height="90" style="display:block;border-radius:6px;object-fit:cover;" alt="${title}">
       </a>
@@ -101,8 +101,8 @@ module.exports = async function handler(req, res) {
     <td style="padding:12px 0 12px 0;vertical-align:top;">
       <p style="margin:0 0 2px 0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">${rankLabels[slot]}</p>
       <p style="margin:0 0 5px 0;font-size:14px;font-weight:bold;color:#111;line-height:1.3;font-family:Arial,sans-serif;">${title}</p>
-      <p style="margin:0 0 6px 0;font-size:12px;color:#666;line-height:1.5;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>
       ${reviewHtml}
+      <p style="margin:0 0 6px 0;font-size:12px;color:#666;line-height:1.5;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>
     </td>
     <td width="140" style="padding:12px 20px 12px 8px;vertical-align:bottom;text-align:right;white-space:nowrap;">
       <p style="margin:0 0 8px 0;text-align:right;">${priceHtml}</p>
