@@ -71,16 +71,18 @@ module.exports = async function handler(req, res) {
 
   function aiBullets(aiText) {
     if (!aiText) return '';
-    // Jos teksti sisältää bullet-merkkejä (•), parsitaan ne listoiksi
-    if (aiText.includes('•')) {
-      const bullets = aiText.split('•').map(s => s.trim()).filter(s => s.length > 2);
-      if (bullets.length > 0) {
-        return `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
-          ${bullets.map(s => `<tr><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 4px 2px 0;vertical-align:top;">✓</td><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 0;">${s}</td></tr>`).join('')}
-        </table>`;
-      }
+    let bullets = [];
+    // Parsitaan | -erottimella (Apps Script poistaa rivinvaihdot)
+    if (aiText.includes(' | ')) {
+      bullets = aiText.split(' | ').map(s => s.replace(/^•\s*/, '').trim()).filter(s => s.length > 2);
+    } else if (aiText.includes('•')) {
+      bullets = aiText.split('•').map(s => s.trim()).filter(s => s.length > 2);
     }
-    // Muuten näytetään lause
+    if (bullets.length > 0) {
+      return `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
+        ${bullets.map(s => `<tr><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 4px 2px 0;vertical-align:top;">✓</td><td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 0;">${s}</td></tr>`).join('')}
+      </table>`;
+    }
     return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
   }
 
