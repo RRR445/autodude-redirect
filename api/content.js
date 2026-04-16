@@ -83,10 +83,11 @@ module.exports = async function handler(req, res) {
       : `<span style="color:#BD4580;font-weight:bold;font-size:17px;font-family:Arial,sans-serif;">${price}</span>`;
 
     const reviewHtml = reviewScore ? `
+      <p style="margin:0 0 2px 0;font-size:10px;font-weight:bold;color:#2a7a2a;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:0.5px;">✅ Vahvistettu asiakasarvostelu</p>
       <p style="margin:0 0 2px 0;font-size:12px;font-family:Arial,sans-serif;">
         ${renderStars(reviewScore)}&nbsp;<span style="color:#888;">${parseFloat(reviewScore).toFixed(1)} (${reviewCount} arvostelua)</span>
       </p>
-      <p style="margin:0 0 6px 0;font-size:11px;color:#999;font-family:Arial,sans-serif;font-style:italic;">"${reviewQuote}"</p>` : '';
+      <p style="margin:0 0 6px 0;font-size:11px;color:#555;font-family:Arial,sans-serif;font-style:italic;">"${reviewQuote}"</p>` : '';
 
     const borderBottom = slot < 5 ? 'border-bottom:1px solid #f0f0f0;' : '';
 
