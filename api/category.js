@@ -1,6 +1,6 @@
 module.exports = async function handler(req, res) {
   const SHEET_ID = '1hjoRWF5HtV-mXlIHdbzyYRUJWQqu_p91zNFohSjxtEI';
-  const GID = 'TÄHÄN_TOPPRODUCTS_GID'; // Haetaan Sheetsistä
+  const GID = '955363836'; // Haetaan Sheetsistä
 
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
