@@ -118,7 +118,7 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#d63737;">
   <tr>
     <td align="center" style="padding:10px 20px;">
-      <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;font-family:Arial,sans-serif;">🎁 ${campaignText}</p>
+      <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;font-family:Arial,sans-serif;">${campaignText}</p>
     </td>
   </tr>
 </table>`;
