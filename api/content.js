@@ -79,14 +79,52 @@ module.exports = async function handler(req, res) {
   // Päivämäärä
   const today = new Date().toLocaleDateString('fi-FI');
 
-  // Lue intro ja kampanja
+  // Lue intro Sheetsistä
   let introText = '';
-  let campaignText = '';
   for (let i = 6; i < rows.length; i++) {
     if (!rows[i]) continue;
     const c = parseRow(rows[i]);
-    if (c[0] === 'INTRO') introText = get(c, 1);
-    if (c[0] === 'CAMPAIGN_TEXT') campaignText = get(c, 1);
+    if (c[0] === 'INTRO') { introText = get(c, 1); break; }
+  }
+
+  // Haetaan kampanja REAALIAJASSA API:sta — ei Sheetsistä
+  // Näin kampanja poistuu emailista heti kun se suljetaan sivustolla
+  let campaignText = '';
+  try {
+    const campResponse = await fetch('https://www.autodude.fi/api/campaigns');
+    const campData = await campResponse.json();
+
+    const now = new Date();
+    const end = campData.campaignEnd ? new Date(campData.campaignEnd) : null;
+
+    if (!end || now < end) {
+      const modules = campData.modules || [];
+      for (const mod of modules) {
+        const htmlItem = (mod.data || []).find(d => d.key === 'html');
+        if (htmlItem) {
+          const raw = htmlItem.value
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/&auml;/g, 'ä').replace(/&ouml;/g, 'ö').replace(/&aring;/g, 'å')
+            .replace(/&Auml;/g, 'Ä').replace(/&Ouml;/g, 'Ö')
+            .replace(/&euro;/g, '€').replace(/&nbsp;/g, ' ')
+            .replace(/&middot;/g, '·').replace(/&amp;/g, '&')
+            .replace(/\s+/g, ' ').trim();
+
+          // Otetaan TILAA-lause + ALE-lause jos löytyy
+          const tilaMatch = raw.match(/TILAA[^!]+!/);
+          const aleMatch = raw.match(/ALE\s*-\s*[^!]+!/);
+          if (tilaMatch) {
+            campaignText = (aleMatch ? aleMatch[0].trim() + ' · ' : '') + tilaMatch[0].trim();
+          } else if (aleMatch) {
+            campaignText = aleMatch[0].trim();
+          }
+          break;
+        }
+      }
+    }
+  } catch(e) {
+    // Kampanjahaku epäonnistui — ei näytetä banneria
+    campaignText = '';
   }
 
   // Parsitaan tuotteet
@@ -112,7 +150,7 @@ module.exports = async function handler(req, res) {
 
   let html = '';
 
-  // ============ #1 KAMPANJABANNERI — ylimmäisenä ============
+  // ============ #1 KAMPANJABANNERI — reaaliaikainen, ylimmäisenä ============
   if (campaignText && campaignText.length > 5) {
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#d63737;">
