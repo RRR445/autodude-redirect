@@ -76,6 +76,9 @@ module.exports = async function handler(req, res) {
     return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
   }
 
+  // Päivämäärä
+  const today = new Date().toLocaleDateString('fi-FI');
+
   // Lue intro ja kampanja
   let introText = '';
   let campaignText = '';
@@ -109,13 +112,13 @@ module.exports = async function handler(req, res) {
 
   let html = '';
 
-  // ============ #1 KAMPANJABANNNERI — ylimmäisenä ============
+  // ============ #1 KAMPANJABANNERI — ylimmäisenä ============
   if (campaignText && campaignText.length > 5) {
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#d63737;">
   <tr>
     <td align="center" style="padding:10px 20px;">
-      <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;font-family:Arial,sans-serif;">${campaignText}</p>
+      <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;font-family:Arial,sans-serif;">🎁 ${campaignText}</p>
     </td>
   </tr>
 </table>`;
@@ -126,8 +129,17 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
     <td style="padding:20px 20px 14px 20px;border-bottom:3px solid #BD4580;">
-      <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Näitä tutkitaan poikkeuksellisen paljon</p>
-      <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Nämä kiinnosti Google haussa eilen!</h2>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align:bottom;">
+            <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Näitä tutkitaan poikkeuksellisen paljon</p>
+            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Nämä kiinnosti Google haussa eilen!</h2>
+          </td>
+          <td style="vertical-align:bottom;text-align:right;white-space:nowrap;padding-left:12px;">
+            <p style="margin:0 0 8px 0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">Päivitetty ${today}</p>
+          </td>
+        </tr>
+      </table>
       <p style="margin:0;font-size:13px;color:#666;line-height:1.5;font-family:Arial,sans-serif;">${introText}</p>
     </td>
   </tr>
