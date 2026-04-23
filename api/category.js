@@ -7,47 +7,6 @@ module.exports = async function handler(req, res) {
   const category = req.query.category || '';
   const brand = req.query.brand || '';
 
-  // Kaikki GR-parametrit
-  const cart_id = req.query.cart_id || '';
-  const cart_total = req.query.cart_total || '';
-  const cart_url = req.query.cart_url || '';
-  const cd_city = req.query.cd_city || '';
-  const days_of_subscription = req.query.days_of_subscription || '';
-  const review_score = req.query.review_score || '';
-  const review_text = req.query.review_text || '';
-  const subscription_form = req.query.subscription_form || '';
-  const birthdate = req.query.birthdate || '';
-  const campaign = req.query.campaign || '';
-  const city = req.query.city || '';
-  const comment = req.query.comment || '';
-  const company = req.query.company || '';
-  const country = req.query.country || '';
-  const email = req.query.email || '';
-  const fax = req.query.fax || '';
-  const firstname = req.query.firstname || '';
-  const gender = req.query.gender || '';
-  const geo_city = req.query.geo_city || '';
-  const geo_country = req.query.geo_country || '';
-  const geo_country_code = req.query.geo_country_code || '';
-  const geo_postal = req.query.geo_postal || '';
-  const geo_region = req.query.geo_region || '';
-  const home_phone = req.query.home_phone || '';
-  const http_referer = req.query.http_referer || '';
-  const ip = req.query.ip || '';
-  const lastname = req.query.lastname || '';
-  const mobile_phone = req.query.mobile_phone || '';
-  const myemail = req.query.myemail || '';
-  const myname = req.query.myname || '';
-  const name = req.query.name || '';
-  const phone = req.query.phone || '';
-  const postal_code = req.query.postal_code || '';
-  const ref = req.query.ref || '';
-  const responder = req.query.responder || '';
-  const state = req.query.state || '';
-  const street = req.query.street || '';
-  const url = req.query.url || '';
-  const work_phone = req.query.work_phone || '';
-
   if (!category && !brand) {
     res.status(400).send('Anna category tai brand parametri');
     return;
@@ -174,47 +133,7 @@ module.exports = async function handler(req, res) {
           </td>
         </tr>
       </table>
-      <p style="margin:8px 0 0 0;font-size:11px;color:#999;font-family:monospace;line-height:1.8;">
-        cart_id: ${cart_id}<br>
-        cart_total: ${cart_total}<br>
-        cart_url: ${cart_url}<br>
-        cd_city: ${cd_city}<br>
-        days_of_subscription: ${days_of_subscription}<br>
-        review_score: ${review_score}<br>
-        review_text: ${review_text}<br>
-        subscription_form: ${subscription_form}<br>
-        birthdate: ${birthdate}<br>
-        campaign: ${campaign}<br>
-        city: ${city}<br>
-        comment: ${comment}<br>
-        company: ${company}<br>
-        country: ${country}<br>
-        email: ${email}<br>
-        fax: ${fax}<br>
-        firstname: ${firstname}<br>
-        gender: ${gender}<br>
-        geo_city: ${geo_city}<br>
-        geo_country: ${geo_country}<br>
-        geo_country_code: ${geo_country_code}<br>
-        geo_postal: ${geo_postal}<br>
-        geo_region: ${geo_region}<br>
-        home_phone: ${home_phone}<br>
-        http_referer: ${http_referer}<br>
-        ip: ${ip}<br>
-        lastname: ${lastname}<br>
-        mobile_phone: ${mobile_phone}<br>
-        myemail: ${myemail}<br>
-        myname: ${myname}<br>
-        name: ${name}<br>
-        phone: ${phone}<br>
-        postal_code: ${postal_code}<br>
-        ref: ${ref}<br>
-        responder: ${responder}<br>
-        state: ${state}<br>
-        street: ${street}<br>
-        url: ${url}<br>
-        work_phone: ${work_phone}
-      </p>
+      <p style="margin:10px 0 0 0;font-size:11px;color:#999;font-family:monospace;line-height:1.9;">[[cart_id]][[cart_total]][[cart_url]][[cd_city]][[days_of_subscription]][[review_score]][[review_text]][[subscription_form]][[birthdate]][[campaign]][[city]][[comment]][[company]][[country]][[email]][[fax]][[firstname]][[gender]][[geo_city]][[geo_country]][[geo_country_code]][[geo_postal]][[geo_region]][[home_phone]][[http_referer]][[ip]][[lastname]][[mobile_phone]][[myemail]][[myname]][[name]][[phone]][[postal_code]][[ref]][[responder]][[state]][[street]][[url]][[work_phone]]</p>
     </td>
   </tr>
 </table>`;
