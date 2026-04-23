@@ -6,21 +6,47 @@ module.exports = async function handler(req, res) {
 
   const category = req.query.category || '';
   const brand = req.query.brand || '';
-  const firstname = req.query.firstname || '';
-  const city = req.query.city || '';
-  const email = req.query.email || '';
-  const cart = req.query.cart || '';
-  const cartTotal = req.query.cart_total || '';
-  const cartId = req.query.cart_id || '';
-  const country = req.query.country || '';
-  const lastname = req.query.lastname || '';
-  const postalCode = req.query.postal_code || '';
-  const gender = req.query.gender || '';
+
+  // Kaikki GR-parametrit
+  const cart_id = req.query.cart_id || '';
+  const cart_total = req.query.cart_total || '';
+  const cart_url = req.query.cart_url || '';
+  const cd_city = req.query.cd_city || '';
+  const days_of_subscription = req.query.days_of_subscription || '';
+  const review_score = req.query.review_score || '';
+  const review_text = req.query.review_text || '';
+  const subscription_form = req.query.subscription_form || '';
   const birthdate = req.query.birthdate || '';
   const campaign = req.query.campaign || '';
-  const daysOfSubscription = req.query.days_of_subscription || '';
-  const reviewScore = req.query.review_score || '';
-  const reviewText = req.query.review_text || '';
+  const city = req.query.city || '';
+  const comment = req.query.comment || '';
+  const company = req.query.company || '';
+  const country = req.query.country || '';
+  const email = req.query.email || '';
+  const fax = req.query.fax || '';
+  const firstname = req.query.firstname || '';
+  const gender = req.query.gender || '';
+  const geo_city = req.query.geo_city || '';
+  const geo_country = req.query.geo_country || '';
+  const geo_country_code = req.query.geo_country_code || '';
+  const geo_postal = req.query.geo_postal || '';
+  const geo_region = req.query.geo_region || '';
+  const home_phone = req.query.home_phone || '';
+  const http_referer = req.query.http_referer || '';
+  const ip = req.query.ip || '';
+  const lastname = req.query.lastname || '';
+  const mobile_phone = req.query.mobile_phone || '';
+  const myemail = req.query.myemail || '';
+  const myname = req.query.myname || '';
+  const name = req.query.name || '';
+  const phone = req.query.phone || '';
+  const postal_code = req.query.postal_code || '';
+  const ref = req.query.ref || '';
+  const responder = req.query.responder || '';
+  const state = req.query.state || '';
+  const street = req.query.street || '';
+  const url = req.query.url || '';
+  const work_phone = req.query.work_phone || '';
 
   if (!category && !brand) {
     res.status(400).send('Anna category tai brand parametri');
@@ -113,10 +139,8 @@ module.exports = async function handler(req, res) {
     const cols = parseRow(rows[i]);
     const rowCategory = get(cols, categoryCol);
     const rowBrand    = get(cols, brandCol);
-
     const matchCategory = category && rowCategory.toLowerCase() === category.toLowerCase();
     const matchBrand    = brand && rowBrand.toLowerCase().includes(brand.toLowerCase());
-
     if (matchCategory || matchBrand) {
       products.push({
         slot:        products.length + 1,
@@ -135,12 +159,7 @@ module.exports = async function handler(req, res) {
   const label = category || brand;
   const today = new Date().toLocaleDateString('fi-FI');
 
-  // TESTI: parametrit viestin alussa — poistetaan myöhemmin
-  let html = `<p style="font-family:monospace;font-size:11px;color:#999;padding:8px;background:#f9f9f9;border:1px solid #eee;">
-    cart_id: ${cartId} | cart_total: ${cartTotal} | cart: ${cart} | city: ${city} | days_of_subscription: ${daysOfSubscription} | review_score: ${reviewScore} | review_text: ${reviewText} | birthdate: ${birthdate} | campaign: ${campaign} | country: ${country} | email: ${email} | firstname: ${firstname} | gender: ${gender} | lastname: ${lastname} | postal_code: ${postalCode}
-  </p>`;
-
-  html += `
+  let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
   <tr>
     <td style="padding:20px 20px 14px 20px;border-bottom:3px solid #BD4580;">
@@ -148,13 +167,54 @@ module.exports = async function handler(req, res) {
         <tr>
           <td>
             <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Suosituimmat — ${label}</p>
-            <h2 style="margin:0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Eniten katsotut tällä hetkellä</h2>
+            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Eniten katsotut tällä hetkellä</h2>
           </td>
           <td style="vertical-align:bottom;text-align:right;white-space:nowrap;padding-left:12px;">
             <p style="margin:0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">Päivitetty ${today}</p>
           </td>
         </tr>
       </table>
+      <p style="margin:8px 0 0 0;font-size:11px;color:#999;font-family:monospace;line-height:1.8;">
+        cart_id: ${cart_id}<br>
+        cart_total: ${cart_total}<br>
+        cart_url: ${cart_url}<br>
+        cd_city: ${cd_city}<br>
+        days_of_subscription: ${days_of_subscription}<br>
+        review_score: ${review_score}<br>
+        review_text: ${review_text}<br>
+        subscription_form: ${subscription_form}<br>
+        birthdate: ${birthdate}<br>
+        campaign: ${campaign}<br>
+        city: ${city}<br>
+        comment: ${comment}<br>
+        company: ${company}<br>
+        country: ${country}<br>
+        email: ${email}<br>
+        fax: ${fax}<br>
+        firstname: ${firstname}<br>
+        gender: ${gender}<br>
+        geo_city: ${geo_city}<br>
+        geo_country: ${geo_country}<br>
+        geo_country_code: ${geo_country_code}<br>
+        geo_postal: ${geo_postal}<br>
+        geo_region: ${geo_region}<br>
+        home_phone: ${home_phone}<br>
+        http_referer: ${http_referer}<br>
+        ip: ${ip}<br>
+        lastname: ${lastname}<br>
+        mobile_phone: ${mobile_phone}<br>
+        myemail: ${myemail}<br>
+        myname: ${myname}<br>
+        name: ${name}<br>
+        phone: ${phone}<br>
+        postal_code: ${postal_code}<br>
+        ref: ${ref}<br>
+        responder: ${responder}<br>
+        state: ${state}<br>
+        street: ${street}<br>
+        url: ${url}<br>
+        work_phone: ${work_phone}
+      </p>
     </td>
   </tr>
 </table>`;
