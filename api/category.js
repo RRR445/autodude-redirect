@@ -14,9 +14,10 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Hae sää kaupungin nimellä — geo_city on luotettava
   let weatherLine = '';
   let weatherPromo = '';
+  let weatherCta = '';
+
   if (geoCity) {
     try {
       const geoResp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(geoCity)}&count=1&language=fi`);
@@ -30,12 +31,15 @@ module.exports = async function handler(req, res) {
           const code = weatherData.current.weathercode;
           const icon = weatherIcon(code);
           weatherLine = `${icon} ${name}: ${temp}°C`;
-          weatherPromo = weatherSalesText(code, temp, firstname);
+          const promo = weatherSalesText(code, temp);
+          weatherPromo = promo.text;
+          weatherCta = promo.cta;
         }
       }
     } catch(e) {
       weatherLine = '';
       weatherPromo = '';
+      weatherCta = '';
     }
   }
 
@@ -52,26 +56,40 @@ module.exports = async function handler(req, res) {
     return '🌡️';
   }
 
-  function weatherSalesText(code, temp, name) {
-    const n = name ? name : 'hei';
-    // Paska keli — tilaa kotiin
+  function weatherSalesText(code, temp) {
+    // Sade tai märkä keli
     if (code >= 50) {
-      return `Siellä näyttää olevan melko märkä keli — hyvä hetki tilata pesuvehkeet kotiin odottamaan parempaa. Kun aurinko lopulta paistaa, olet valmis.`;
+      return {
+        text: 'Siellä näyttää olevan melko märkä keli — hyvä hetki tilata pesuvehkeet kotiin odottamaan parempaa. Kun aurinko lopulta paistaa, olet valmis.',
+        cta: ''
+      };
     }
     // Lumi tai pakkanen
     if (code >= 70 || temp < 0) {
-      return `Talvikeli käynnissä — auton suojaus ja hoito on nyt tärkeintä. Tilaa tuotteet kotiin, niin pääset hoitamaan auton heti kun keli hellittää.`;
+      return {
+        text: 'Talvikeli käynnissä — auton suojaus ja hoito on nyt tärkeintä. Tilaa tuotteet kotiin, niin pääset hoitamaan auton heti kun keli hellittää.',
+        cta: ''
+      };
     }
     // Pilvinen mutta kuiva
     if (code >= 3) {
-      return `Kuiva keli mutta pilvistä — juuri sopiva hetki pesupuuhiin ilman suoraa auringonpaistetta. Kiillotus onnistuu parhaiten pilvisellä säällä.`;
+      return {
+        text: 'Kuiva keli mutta pilvistä — juuri sopiva hetki pesupuuhiin ilman suoraa auringonpaistetta. Kiillotus onnistuu parhaiten pilvisellä säällä.',
+        cta: ''
+      };
     }
-    // Täydellinen pesukeli
+    // Täydellinen pesukeli — aurinkoinen ja lämmin
     if (temp >= 15) {
-      return `Täydellinen pesupäivä! ${temp}°C ja aurinkoista — juuri nyt kannattaa hakea autot kuntoon. Löydät lähimmän jälleenmyyjämme nopeasti.`;
+      return {
+        text: `Täydellinen pesupäivä! ${temp}°C ja aurinkoista — juuri nyt kannattaa hakea autot kuntoon. Jos tuntuu että ollaan myöhässä tämän viestin suhteen, löydät Duden tuotteet sadoilta jälleenmyyjiltä ympäri Suomen.`,
+        cta: 'Katso lähin jälleenmyyjäsi →'
+      };
     }
     // Aurinkoinen mutta viileä
-    return `Aurinkoinen päivä — vaikka vähän viileää, nyt on huikea hetki käydä auton kimppuun. Oikeat tuotteet tekevät hommasta helpon. Jos tuntuu että ollaan myöhässä tämän viestin suhteen - Löydät duden tuotteet sadoilta jälleenmyyjiltä ympäri suomen! Katso lisää: https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat`;
+    return {
+      text: 'Aurinkoinen päivä — vaikka vähän viileää, nyt on huikea hetki käydä auton kimppuun. Oikeat tuotteet tekevät hommasta helpon. Jos tuntuu että ollaan myöhässä tämän viestin suhteen — löydät Duden tuotteet sadoilta jälleenmyyjiltä ympäri Suomen.',
+      cta: 'Katso lähin jälleenmyyjäsi →'
+    };
   }
 
   const response = await fetch(csvUrl);
@@ -179,7 +197,11 @@ module.exports = async function handler(req, res) {
 
   const label = category || brand;
   const today = new Date().toLocaleDateString('fi-FI');
-  const greeting = firstname ? `Hei ${firstname}!` : 'Hei!';
+
+  // Hauska otsikko — personoitu jos nimi saatavilla
+  const funTitle = firstname
+    ? `Moro ${firstname}! Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`
+    : `Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`;
 
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
@@ -189,9 +211,10 @@ module.exports = async function handler(req, res) {
         <tr>
           <td>
             <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Suosituimmat — ${label}</p>
-            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${greeting} 👀 Eniten katsotut tällä hetkellä</h2>
+            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${funTitle}</h2>
             ${weatherLine ? `<p style="margin:0 0 6px 0;font-size:12px;color:#888;font-family:Arial,sans-serif;">${weatherLine}</p>` : ''}
-            ${weatherPromo ? `<p style="margin:0;font-size:13px;color:#555;line-height:1.5;font-family:Arial,sans-serif;">${weatherPromo}</p>` : ''}
+            ${weatherPromo ? `<p style="margin:0 0 8px 0;font-size:13px;color:#555;line-height:1.5;font-family:Arial,sans-serif;">${weatherPromo}</p>` : ''}
+            ${weatherCta ? `<a href="https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-category&utm_content=weather_cta" style="display:inline-block;background:#BD4580;color:#fff;text-decoration:none;padding:8px 18px;border-radius:4px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;margin-bottom:4px;">${weatherCta}</a>` : ''}
           </td>
           <td style="vertical-align:top;text-align:right;white-space:nowrap;padding-left:12px;">
             <p style="margin:0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">Päivitetty ${today}</p>
