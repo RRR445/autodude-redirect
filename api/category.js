@@ -4,28 +4,25 @@ module.exports = async function handler(req, res) {
 
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
-  const category    = req.query.category || '';
-  const brand       = req.query.brand || '';
-  const firstname   = req.query.firstname || '';
-  const postalCode  = req.query.postal_code || '';
+  const category   = req.query.category || '';
+  const brand      = req.query.brand || '';
+  const firstname  = req.query.firstname || '';
+  const geoCity    = req.query.geo_city || '';
 
   if (!category && !brand) {
     res.status(400).send('Anna category tai brand parametri');
     return;
   }
 
-  // Hae sää postinumeron perusteella
+  // Hae sää kaupungin nimellä — geo_city on luotettava
   let weatherLine = '';
-  if (postalCode) {
+  let weatherPromo = '';
+  if (geoCity) {
     try {
-      // Ensin muunnetaan postinumero koordinaateiksi
-      const geoResp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${postalCode}&country=FI&count=1&language=fi&format=json`);
+      const geoResp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(geoCity)}&count=1&language=fi`);
       const geoData = await geoResp.json();
       if (geoData.results && geoData.results[0]) {
-        // Suodatetaan vain jos on FI-maa
-        const match = geoData.results.find(r => r.country_code === 'FI') || geoData.results[0];
-        const { latitude, longitude, name } = match;
-        // Sitten haetaan sää koordinaateilla
+        const { latitude, longitude, name } = geoData.results[0];
         const weatherResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode&timezone=Europe%2FHelsinki`);
         const weatherData = await weatherResp.json();
         if (weatherData.current) {
@@ -33,10 +30,12 @@ module.exports = async function handler(req, res) {
           const code = weatherData.current.weathercode;
           const icon = weatherIcon(code);
           weatherLine = `${icon} ${name}: ${temp}°C`;
+          weatherPromo = weatherSalesText(code, temp, firstname);
         }
       }
     } catch(e) {
       weatherLine = '';
+      weatherPromo = '';
     }
   }
 
@@ -51,6 +50,28 @@ module.exports = async function handler(req, res) {
     if (code <= 82) return '🌧️';
     if (code <= 99) return '⛈️';
     return '🌡️';
+  }
+
+  function weatherSalesText(code, temp, name) {
+    const n = name ? name : 'hei';
+    // Paska keli — tilaa kotiin
+    if (code >= 50) {
+      return `Siellä näyttää olevan melko märkä keli — hyvä hetki tilata pesuvehkeet kotiin odottamaan parempaa. Kun aurinko lopulta paistaa, olet valmis.`;
+    }
+    // Lumi tai pakkanen
+    if (code >= 70 || temp < 0) {
+      return `Talvikeli käynnissä — auton suojaus ja hoito on nyt tärkeintä. Tilaa tuotteet kotiin, niin pääset hoitamaan auton heti kun keli hellittää.`;
+    }
+    // Pilvinen mutta kuiva
+    if (code >= 3) {
+      return `Kuiva keli mutta pilvistä — juuri sopiva hetki pesupuuhiin ilman suoraa auringonpaistetta. Kiillotus onnistuu parhaiten pilvisellä säällä.`;
+    }
+    // Täydellinen pesukeli
+    if (temp >= 15) {
+      return `Täydellinen pesupäivä! ${temp}°C ja aurinkoista — juuri nyt kannattaa hakea autot kuntoon. Löydät lähimmän jälleenmyyjämme nopeasti.`;
+    }
+    // Aurinkoinen mutta viileä
+    return `Aurinkoinen päivä — vaikka vähän viileää, nyt on hyvä hetki käydä auton kimpussa. Oikeat tuotteet tekevät hommasta helpon.`;
   }
 
   const response = await fetch(csvUrl);
@@ -168,12 +189,12 @@ module.exports = async function handler(req, res) {
         <tr>
           <td>
             <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Suosituimmat — ${label}</p>
-            <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${greeting} 👀 Eniten katsotut tällä hetkellä</h2>
-            ${weatherLine ? `<p style="margin:0;font-size:12px;color:#888;font-family:Arial,sans-serif;">Säätilanne alueellasi: ${weatherLine}</p>` : ''}
+            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${greeting} 👀 Eniten katsotut tällä hetkellä</h2>
+            ${weatherLine ? `<p style="margin:0 0 6px 0;font-size:12px;color:#888;font-family:Arial,sans-serif;">${weatherLine}</p>` : ''}
+            ${weatherPromo ? `<p style="margin:0;font-size:13px;color:#555;line-height:1.5;font-family:Arial,sans-serif;">${weatherPromo}</p>` : ''}
           </td>
           <td style="vertical-align:top;text-align:right;white-space:nowrap;padding-left:12px;">
             <p style="margin:0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">Päivitetty ${today}</p>
-            ${postalCode ? `<p style="margin:4px 0 0 0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">${postalCode}</p>` : ''}
           </td>
         </tr>
       </table>
