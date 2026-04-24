@@ -19,10 +19,12 @@ module.exports = async function handler(req, res) {
   if (postalCode) {
     try {
       // Ensin muunnetaan postinumero koordinaateiksi
-      const geoResp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${postalCode}&country=FI&count=1&language=fi`);
+      const geoResp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${postalCode}&country=FI&count=1&language=fi&format=json`);
       const geoData = await geoResp.json();
       if (geoData.results && geoData.results[0]) {
-        const { latitude, longitude, name } = geoData.results[0];
+        // Suodatetaan vain jos on FI-maa
+        const match = geoData.results.find(r => r.country_code === 'FI') || geoData.results[0];
+        const { latitude, longitude, name } = match;
         // Sitten haetaan sää koordinaateilla
         const weatherResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode&timezone=Europe%2FHelsinki`);
         const weatherData = await weatherResp.json();
