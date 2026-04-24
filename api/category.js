@@ -71,7 +71,7 @@ module.exports = async function handler(req, res) {
       return `Täydellinen pesupäivä! ${temp}°C ja aurinkoista — juuri nyt kannattaa hakea autot kuntoon. Löydät lähimmän jälleenmyyjämme nopeasti.`;
     }
     // Aurinkoinen mutta viileä
-    return `Aurinkoinen päivä — vaikka vähän viileää, nyt on hyvä hetki käydä auton kimpussa. Oikeat tuotteet tekevät hommasta helpon.`;
+    return `Aurinkoinen päivä — vaikka vähän viileää, nyt on huikea hetki käydä auton kimppuun. Oikeat tuotteet tekevät hommasta helpon. Jos tuntuu että ollaan myöhässä tämän viestin suhteen - Löydät duden tuotteet sadoilta jälleenmyyjiltä ympäri suomen! Katso lisää: https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat`;
   }
 
   const response = await fetch(csvUrl);
