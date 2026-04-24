@@ -4,12 +4,51 @@ module.exports = async function handler(req, res) {
 
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
-  const category = req.query.category || '';
-  const brand = req.query.brand || '';
+  const category    = req.query.category || '';
+  const brand       = req.query.brand || '';
+  const firstname   = req.query.firstname || '';
+  const postalCode  = req.query.postal_code || '';
 
   if (!category && !brand) {
     res.status(400).send('Anna category tai brand parametri');
     return;
+  }
+
+  // Hae sää postinumeron perusteella
+  let weatherLine = '';
+  if (postalCode) {
+    try {
+      // Ensin muunnetaan postinumero koordinaateiksi
+      const geoResp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${postalCode}&country=FI&count=1&language=fi`);
+      const geoData = await geoResp.json();
+      if (geoData.results && geoData.results[0]) {
+        const { latitude, longitude, name } = geoData.results[0];
+        // Sitten haetaan sää koordinaateilla
+        const weatherResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode&timezone=Europe%2FHelsinki`);
+        const weatherData = await weatherResp.json();
+        if (weatherData.current) {
+          const temp = Math.round(weatherData.current.temperature_2m);
+          const code = weatherData.current.weathercode;
+          const icon = weatherIcon(code);
+          weatherLine = `${icon} ${name}: ${temp}°C`;
+        }
+      }
+    } catch(e) {
+      weatherLine = '';
+    }
+  }
+
+  function weatherIcon(code) {
+    if (code === 0) return '☀️';
+    if (code <= 2) return '🌤️';
+    if (code <= 3) return '☁️';
+    if (code <= 49) return '🌫️';
+    if (code <= 59) return '🌦️';
+    if (code <= 69) return '🌧️';
+    if (code <= 79) return '❄️';
+    if (code <= 82) return '🌧️';
+    if (code <= 99) return '⛈️';
+    return '🌡️';
   }
 
   const response = await fetch(csvUrl);
@@ -117,6 +156,7 @@ module.exports = async function handler(req, res) {
 
   const label = category || brand;
   const today = new Date().toLocaleDateString('fi-FI');
+  const greeting = firstname ? `Hei ${firstname}!` : 'Hei!';
 
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
@@ -126,14 +166,15 @@ module.exports = async function handler(req, res) {
         <tr>
           <td>
             <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Suosituimmat — ${label}</p>
-            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">👀 Eniten katsotut tällä hetkellä</h2>
+            <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${greeting} 👀 Eniten katsotut tällä hetkellä</h2>
+            ${weatherLine ? `<p style="margin:0;font-size:12px;color:#888;font-family:Arial,sans-serif;">Säätilanne alueellasi: ${weatherLine}</p>` : ''}
           </td>
-          <td style="vertical-align:bottom;text-align:right;white-space:nowrap;padding-left:12px;">
+          <td style="vertical-align:top;text-align:right;white-space:nowrap;padding-left:12px;">
             <p style="margin:0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">Päivitetty ${today}</p>
+            ${postalCode ? `<p style="margin:4px 0 0 0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">${postalCode}</p>` : ''}
           </td>
         </tr>
       </table>
-      <p style="margin:10px 0 0 0;font-size:11px;color:#999;font-family:monospace;line-height:1.9;">[[cart_id]][[cart_total]][[cart_url]][[cd_city]][[days_of_subscription]][[review_score]][[review_text]][[subscription_form]][[birthdate]][[campaign]][[city]][[comment]][[company]][[country]][[email]][[fax]][[firstname]][[gender]][[geo_city]][[geo_country]][[geo_country_code]][[geo_postal]][[geo_region]][[home_phone]][[http_referer]][[ip]][[lastname]][[mobile_phone]][[myemail]][[myname]][[name]][[phone]][[postal_code]][[ref]][[responder]][[state]][[street]][[url]][[work_phone]]</p>
     </td>
   </tr>
 </table>`;
