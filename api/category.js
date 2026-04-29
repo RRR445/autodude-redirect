@@ -1,20 +1,19 @@
 'use strict';
 
-const SHEET_ID = '1hjoRWF5HtV-mXlIHdbzyYRUJWQqu_p91zNFohSjxtEI';
-const GID      = '955363836';
-const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+const SHEET_ID   = '1hjoRWF5HtV-mXlIHdbzyYRUJWQqu_p91zNFohSjxtEI';
+const GID        = '955363836';
+const CSV_URL    = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 const DEALER_URL = 'https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-category&utm_content=weather_cta';
 
-// GR-tagit muuttujina — ei sekoita template literaaleja
-const GR_FIRSTNAME = "{{CONTACT `ucfw(subscriber_first_name)`}}";
-const GR_LINK_OPEN = "{{LINK `";
-const GR_LINK_CLOSE = "`}}";
+// GR-tagit muuttujina — ei sekoita JS template literaaleja
+const GR_NAME      = '{{CONTACT `ucfw(subscriber_first_name)`}}';
+const GR_LINK_O    = '{{LINK `';
+const GR_LINK_C    = '`}}';
 
 module.exports = async function handler(req, res) {
   const category  = req.query.category || '';
   const brand     = req.query.brand    || '';
-  const firstname = req.query.firstname || '';
-  const geoCity   = req.query.geo_city  || '';
+  const geoCity   = req.query.geo_city || '';
 
   if (!category && !brand) {
     res.status(400).send('Anna category tai brand parametri');
@@ -37,17 +36,15 @@ module.exports = async function handler(req, res) {
         if (wData.current) {
           const temp  = Math.round(wData.current.temperature_2m);
           const code  = wData.current.weathercode;
-          const icon  = getWeatherIcon(code);
-          weatherLine = `${icon} ${place.name}: ${temp}°C`;
+          weatherLine = `${getWeatherIcon(code)} ${place.name}: ${temp}°C`;
           const promo = getWeatherPromo(code, temp);
           weatherPromo = promo.text;
           weatherCta   = promo.cta;
         }
       }
-    } catch (_) { /* ei säätietoa — ei haittaa */ }
+    } catch (_) { /* ei säätietoa */ }
   }
 
-  // ── Apufunktiot ───────────────────────────────────────────────────────
   function getWeatherIcon(code) {
     if (code === 0)  return '☀️';
     if (code <= 2)   return '🌤️';
@@ -84,13 +81,14 @@ module.exports = async function handler(req, res) {
     };
   }
 
+  // ── CSV ───────────────────────────────────────────────────────────────
   function parseCSVRow(row) {
     const cols = [];
     let cur = '', inQ = false;
     for (const ch of row) {
-      if (ch === '"')                   { inQ = !inQ; }
-      else if (ch === ',' && !inQ)      { cols.push(cur); cur = ''; }
-      else                              { cur += ch; }
+      if (ch === '"')              { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur); cur = ''; }
+      else                         { cur += ch; }
     }
     cols.push(cur);
     return cols;
@@ -101,65 +99,6 @@ module.exports = async function handler(req, res) {
     return v && typeof v.trim === 'function' ? v.trim() : '';
   }
 
-  function stars(score) {
-    const n = parseFloat(score);
-    if (!n) return '';
-    const full = Math.round(n);
-    return Array.from({ length: 5 }, (_, i) =>
-      i < full
-        ? '<span style="color:#BD4580;font-size:12px;">★</span>'
-        : '<span style="color:#ddd;font-size:12px;">★</span>'
-    ).join('');
-  }
-
-  function discountBadge(rawPrice, rawSale) {
-    const p = parseFloat(rawPrice), s = parseFloat(rawSale);
-    if (!rawSale || s >= p) return '';
-    const pct = Math.round((1 - s / p) * 100);
-    return `<span style="background:#BD4580;color:#fff;font-size:11px;font-weight:bold;font-family:Arial,sans-serif;padding:2px 7px;border-radius:3px;margin-left:6px;">-${pct}%</span>`;
-  }
-
-  function priceBlock(rawPrice, rawSale, large) {
-    const p = parseFloat(rawPrice), s = parseFloat(rawSale);
-    const hasDiscount = rawSale && s < p;
-    const priceStr = rawPrice.replace(' EUR', ' €');
-    const saleStr  = rawSale.replace(' EUR', ' €');
-    const bigSize  = large ? '22px' : '17px';
-    const smSize   = large ? '13px' : '12px';
-    if (hasDiscount) return `
-      <span style="text-decoration:line-through;color:#aaa;font-size:${smSize};font-family:Arial,sans-serif;">${priceStr}</span>&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:${bigSize};font-family:Arial,sans-serif;">${saleStr}</span>${discountBadge(rawPrice, rawSale)}`;
-    return `<span style="color:#BD4580;font-weight:bold;font-size:${bigSize};font-family:Arial,sans-serif;">${priceStr}</span>`;
-  }
-
-  function reviewRow(score, count) {
-    if (!score) return '';
-    return `
-      <p style="margin:0 0 6px 0;font-size:11px;font-family:Arial,sans-serif;">
-        ${stars(score)}&nbsp;<span style="color:#888;">${parseFloat(score).toFixed(1)} (${count} arvostelua)</span>
-      </p>`;
-  }
-
-  function aiBullets(aiText) {
-    if (!aiText) return '';
-    let bullets = [];
-    if (aiText.includes(' | '))
-      bullets = aiText.split(' | ').map(s => s.replace(/^•\s*/, '').trim()).filter(s => s.length > 2);
-    else if (aiText.includes('•'))
-      bullets = aiText.split('•').map(s => s.trim()).filter(s => s.length > 2);
-
-    if (bullets.length > 0) return `
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
-        ${bullets.map(b => `
-        <tr>
-          <td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 4px 2px 0;vertical-align:top;">✓</td>
-          <td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 0;">${b}</td>
-        </tr>`).join('')}
-      </table>`;
-
-    return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
-  }
-
-  // ── CSV → tuotteet ────────────────────────────────────────────────────
   const csvText = await (await fetch(CSV_URL)).text();
   const rows    = csvText.trim().split('\n');
   const hdrs    = parseCSVRow(rows[0]);
@@ -188,11 +127,62 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // ── HTML ──────────────────────────────────────────────────────────────
-  const label    = category || brand;
-  const today    = new Date().toLocaleDateString('fi-FI');
-  const nameText = firstname || GR_FIRSTNAME;
-  const title    = `Moro ${nameText}! Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`;
+  // ── HTML-apufunktiot ─────────────────────────────────────────────────
+  function stars(score) {
+    const n = parseFloat(score);
+    if (!n) return '';
+    const full = Math.round(n);
+    return Array.from({ length: 5 }, (_, i) =>
+      i < full
+        ? '<span style="color:#BD4580;font-size:12px;">★</span>'
+        : '<span style="color:#ddd;font-size:12px;">★</span>'
+    ).join('');
+  }
+
+  function discountBadge(rawPrice, rawSale) {
+    const p = parseFloat(rawPrice), s = parseFloat(rawSale);
+    if (!rawSale || s >= p) return '';
+    const pct = Math.round((1 - s / p) * 100);
+    return `<span style="background:#BD4580;color:#fff;font-size:11px;font-weight:bold;font-family:Arial,sans-serif;padding:2px 7px;border-radius:3px;margin-left:6px;">-${pct}%</span>`;
+  }
+
+  function priceBlock(rawPrice, rawSale, large) {
+    const p = parseFloat(rawPrice), s = parseFloat(rawSale);
+    const hasDiscount = rawSale && s < p;
+    const priceStr = rawPrice.replace(' EUR', ' €');
+    const saleStr  = rawSale.replace(' EUR', ' €');
+    const bigSize  = large ? '22px' : '17px';
+    const smSize   = large ? '13px' : '12px';
+    if (hasDiscount) return `<span style="text-decoration:line-through;color:#aaa;font-size:${smSize};font-family:Arial,sans-serif;">${priceStr}</span>&nbsp;<span style="color:#BD4580;font-weight:bold;font-size:${bigSize};font-family:Arial,sans-serif;">${saleStr}</span>${discountBadge(rawPrice, rawSale)}`;
+    return `<span style="color:#BD4580;font-weight:bold;font-size:${bigSize};font-family:Arial,sans-serif;">${priceStr}</span>`;
+  }
+
+  function reviewRow(score, count) {
+    if (!score) return '';
+    return `<p style="margin:0 0 6px 0;font-size:11px;font-family:Arial,sans-serif;">${stars(score)}&nbsp;<span style="color:#888;">${parseFloat(score).toFixed(1)} (${count} arvostelua)</span></p>`;
+  }
+
+  function aiBullets(aiText) {
+    if (!aiText) return '';
+    let bullets = [];
+    if (aiText.includes(' | '))
+      bullets = aiText.split(' | ').map(s => s.replace(/^•\s*/, '').trim()).filter(s => s.length > 2);
+    else if (aiText.includes('•'))
+      bullets = aiText.split('•').map(s => s.trim()).filter(s => s.length > 2);
+    if (bullets.length > 0) return `
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 8px 0;">
+        ${bullets.map(b => `
+        <tr>
+          <td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 4px 2px 0;vertical-align:top;">✓</td>
+          <td style="font-size:12px;color:#444;font-family:Arial,sans-serif;padding:2px 0;">${b}</td>
+        </tr>`).join('')}
+      </table>`;
+    return `<p style="margin:0 0 8px 0;font-size:13px;color:#555;font-family:Arial,sans-serif;font-style:italic;border-left:2px solid #BD4580;padding-left:8px;">${aiText}</p>`;
+  }
+
+  function link(url) {
+    return GR_LINK_O + url + GR_LINK_C;
+  }
 
   function heroHTML(p) {
     return `
@@ -202,7 +192,7 @@ module.exports = async function handler(req, res) {
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td width="160" style="vertical-align:middle;padding-right:16px;">
-            <a href="${GR_LINK_OPEN}${p.productUrl}${GR_LINK_CLOSE}">
+            <a href="${link(p.productUrl)}">
               <img src="${p.imageUrl}" width="160" height="160" style="display:block;border-radius:8px;object-fit:cover;" alt="${p.title}">
             </a>
           </td>
@@ -212,10 +202,7 @@ module.exports = async function handler(req, res) {
             ${reviewRow(p.reviewScore, p.reviewCount)}
             ${aiBullets(p.aiText)}
             <p style="margin:0 0 12px 0;">${priceBlock(p.rawPrice, p.rawSale, true)}</p>
-            <a href="${GR_LINK_OPEN}${p.productUrl}${GR_LINK_CLOSE}"
-               style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">
-              Katso tuote →
-            </a>
+            <a href="${link(p.productUrl)}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
           </td>
         </tr>
       </table>
@@ -231,7 +218,7 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:${bg};${border}">
   <tr>
     <td width="80" style="padding:10px 10px 10px 20px;vertical-align:middle;">
-      <a href="${GR_LINK_OPEN}${p.productUrl}${GR_LINK_CLOSE}">
+      <a href="${link(p.productUrl)}">
         <img src="${p.imageUrl}" width="75" height="75" style="display:block;border-radius:6px;object-fit:cover;" alt="${p.title}">
       </a>
     </td>
@@ -242,14 +229,16 @@ module.exports = async function handler(req, res) {
     </td>
     <td width="130" style="padding:10px 20px 10px 8px;vertical-align:middle;text-align:right;white-space:nowrap;">
       <p style="margin:0 0 8px 0;text-align:right;">${priceBlock(p.rawPrice, p.rawSale, false)}</p>
-      <a href="${GR_LINK_OPEN}${p.productUrl}${GR_LINK_CLOSE}"
-         style="background-color:#BD4580;color:#fff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">
-        Katso →
-      </a>
+      <a href="${link(p.productUrl)}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a>
     </td>
   </tr>
 </table>`;
   }
+
+  // ── Kokoa HTML ────────────────────────────────────────────────────────
+  const label = category || brand;
+  const today = new Date().toLocaleDateString('fi-FI');
+  const title = `Moro ${GR_NAME}! Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`;
 
   const html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
@@ -258,18 +247,11 @@ module.exports = async function handler(req, res) {
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td>
-            <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">
-              Suosituimmat — ${label}
-            </p>
-            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">
-              ${title}
-            </h2>
+            <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Suosituimmat — ${label}</p>
+            <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${title}</h2>
             ${weatherLine  ? `<p style="margin:0 0 6px 0;font-size:12px;color:#888;font-family:Arial,sans-serif;">${weatherLine}</p>` : ''}
             ${weatherPromo ? `<p style="margin:0 0 8px 0;font-size:13px;color:#555;line-height:1.5;font-family:Arial,sans-serif;">${weatherPromo}</p>` : ''}
-            ${weatherCta   ? `<a href="${GR_LINK_OPEN}${DEALER_URL}${GR_LINK_CLOSE}"
-                                style="display:inline-block;background:#BD4580;color:#fff;text-decoration:none;padding:8px 18px;border-radius:4px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">
-                                ${weatherCta}
-                              </a>` : ''}
+            ${weatherCta   ? `<a href="${link(DEALER_URL)}" style="display:inline-block;background:#BD4580;color:#fff;text-decoration:none;padding:8px 18px;border-radius:4px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">${weatherCta}</a>` : ''}
           </td>
           <td style="vertical-align:top;text-align:right;white-space:nowrap;padding-left:12px;">
             <p style="margin:0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">Päivitetty ${today}</p>
