@@ -4,10 +4,10 @@ module.exports = async function handler(req, res) {
 
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
-  const category   = req.query.category || '';
-  const brand      = req.query.brand || '';
-  const firstname  = req.query.firstname || '';
-  const geoCity    = req.query.geo_city || '';
+  const category  = req.query.category || '';
+  const brand     = req.query.brand || '';
+  const firstname = req.query.firstname || '';
+  const geoCity   = req.query.geo_city || '';
 
   if (!category && !brand) {
     res.status(400).send('Anna category tai brand parametri');
@@ -29,8 +29,7 @@ module.exports = async function handler(req, res) {
         if (weatherData.current) {
           const temp = Math.round(weatherData.current.temperature_2m);
           const code = weatherData.current.weathercode;
-          const icon = weatherIcon(code);
-          weatherLine = `${icon} ${name}: ${temp}°C`;
+          weatherLine = `${weatherIcon(code)} ${name}: ${temp}°C`;
           const promo = weatherSalesText(code, temp);
           weatherPromo = promo.text;
           weatherCta = promo.cta;
@@ -38,8 +37,6 @@ module.exports = async function handler(req, res) {
       }
     } catch(e) {
       weatherLine = '';
-      weatherPromo = '';
-      weatherCta = '';
     }
   }
 
@@ -57,35 +54,30 @@ module.exports = async function handler(req, res) {
   }
 
   function weatherSalesText(code, temp) {
-    // Sade tai märkä keli
     if (code >= 50) {
       return {
         text: 'Siellä näyttää olevan melko märkä keli — hyvä hetki tilata pesuvehkeet kotiin odottamaan parempaa. Kun aurinko lopulta paistaa, olet valmis.',
         cta: ''
       };
     }
-    // Lumi tai pakkanen
     if (code >= 70 || temp < 0) {
       return {
         text: 'Talvikeli käynnissä — auton suojaus ja hoito on nyt tärkeintä. Tilaa tuotteet kotiin, niin pääset hoitamaan auton heti kun keli hellittää.',
         cta: ''
       };
     }
-    // Pilvinen mutta kuiva
     if (code >= 3) {
       return {
         text: 'Kuiva keli mutta pilvistä — juuri sopiva hetki pesupuuhiin ilman suoraa auringonpaistetta. Kiillotus onnistuu parhaiten pilvisellä säällä.',
         cta: ''
       };
     }
-    // Täydellinen pesukeli — aurinkoinen ja lämmin
     if (temp >= 15) {
       return {
         text: `Täydellinen pesupäivä! ${temp}°C ja aurinkoista — juuri nyt kannattaa hakea autot kuntoon. Jos tuntuu että ollaan myöhässä tämän viestin suhteen, löydät Duden tuotteet sadoilta jälleenmyyjiltä ympäri Suomen.`,
         cta: 'Katso lähin jälleenmyyjäsi →'
       };
     }
-    // Aurinkoinen mutta viileä
     return {
       text: 'Aurinkoinen päivä — vaikka vähän viileää, nyt on huikea hetki käydä auton kimppuun. Oikeat tuotteet tekevät hommasta helpon. Jos tuntuu että ollaan myöhässä tämän viestin suhteen — löydät Duden tuotteet sadoilta jälleenmyyjiltä ympäri Suomen.',
       cta: 'Katso lähin jälleenmyyjäsi →'
@@ -197,11 +189,11 @@ module.exports = async function handler(req, res) {
 
   const label = category || brand;
   const today = new Date().toLocaleDateString('fi-FI');
-
-  // Hauska otsikko — personoitu jos nimi saatavilla
   const funTitle = firstname
     ? `Moro ${firstname}! Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`
     : `Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`;
+
+  const dealerUrl = 'https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-category&utm_content=weather_cta';
 
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
@@ -214,7 +206,7 @@ module.exports = async function handler(req, res) {
             <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${funTitle}</h2>
             ${weatherLine ? `<p style="margin:0 0 6px 0;font-size:12px;color:#888;font-family:Arial,sans-serif;">${weatherLine}</p>` : ''}
             ${weatherPromo ? `<p style="margin:0 0 8px 0;font-size:13px;color:#555;line-height:1.5;font-family:Arial,sans-serif;">${weatherPromo}</p>` : ''}
-            ${weatherCta ? `<a href="https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-category&utm_content=weather_cta" style="display:inline-block;background:#BD4580;color:#fff;text-decoration:none;padding:8px 18px;border-radius:4px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;margin-bottom:4px;">${weatherCta}</a>` : ''}
+            ${weatherCta ? `<a href="{{LINK \`${dealerUrl}\`}}" style="display:inline-block;background:#BD4580;color:#fff;text-decoration:none;padding:8px 18px;border-radius:4px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">${weatherCta}</a>` : ''}
           </td>
           <td style="vertical-align:top;text-align:right;white-space:nowrap;padding-left:12px;">
             <p style="margin:0;font-size:10px;color:#bbb;font-family:Arial,sans-serif;">Päivitetty ${today}</p>
@@ -236,6 +228,7 @@ module.exports = async function handler(req, res) {
 </table>`;
   } else {
     const hero = products[0];
+    // HERO — versio 1: backtick
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-bottom:3px solid #BD4580;">
   <tr>
@@ -243,7 +236,7 @@ module.exports = async function handler(req, res) {
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td width="160" style="vertical-align:middle;padding-right:16px;">
-            <a href="${hero.productUrl}">
+            <a href="{{LINK \`${hero.productUrl}\`}}">
               <img src="${hero.imageUrl}" width="160" height="160" style="display:block;border-radius:8px;object-fit:cover;" alt="${hero.title}">
             </a>
           </td>
@@ -253,7 +246,7 @@ module.exports = async function handler(req, res) {
             ${reviewLine(hero.reviewScore, hero.reviewCount)}
             ${aiBullets(hero.aiText)}
             <p style="margin:0 0 12px 0;">${priceBlock(hero.rawPrice, hero.rawSale, true)}</p>
-            <a href="${hero.productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
+            <a href="{{LINK \`${hero.productUrl}\`}}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote → (v1 backtick)</a>
           </td>
         </tr>
       </table>
@@ -264,11 +257,20 @@ module.exports = async function handler(req, res) {
     products.slice(1).forEach((p, i) => {
       const bg = i % 2 === 0 ? '#fff' : '#fafafa';
       const borderBottom = i < products.length - 2 ? 'border-bottom:1px solid #f0f0f0;' : '';
+      // SLOT 2 — versio 2: single quote
+      // SLOT 3-5 — normaali href
+      const linkHref = i === 0
+        ? `{{LINK '${p.productUrl}'}}`
+        : p.productUrl;
+      const linkLabel = i === 0
+        ? `Katso → (v2 quote)`
+        : `Katso →`;
+
       html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:${bg};${borderBottom}">
   <tr>
     <td width="80" style="padding:10px 10px 10px 20px;vertical-align:middle;">
-      <a href="${p.productUrl}">
+      <a href="${linkHref}">
         <img src="${p.imageUrl}" width="75" height="75" style="display:block;border-radius:6px;object-fit:cover;" alt="${p.title}">
       </a>
     </td>
@@ -279,7 +281,7 @@ module.exports = async function handler(req, res) {
     </td>
     <td width="130" style="padding:10px 20px 10px 8px;vertical-align:middle;text-align:right;white-space:nowrap;">
       <p style="margin:0 0 8px 0;text-align:right;">${priceBlock(p.rawPrice, p.rawSale, false)}</p>
-      <a href="${p.productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a>
+      <a href="${linkHref}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">${linkLabel}</a>
     </td>
   </tr>
 </table>`;
