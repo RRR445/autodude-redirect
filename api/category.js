@@ -189,11 +189,12 @@ module.exports = async function handler(req, res) {
 
   const label = category || brand;
   const today = new Date().toLocaleDateString('fi-FI');
+  const dealerUrl = 'https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-category&utm_content=weather_cta';
+
+  // Otsikko — käytetään GR:n CONTACT-tagia suoraan jos firstname-parametri puuttuu
   const funTitle = firstname
     ? `Moro ${firstname}! Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`
-    : `Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`;
-
-  const dealerUrl = 'https://www.autodude.fi/fi/tuote/autodude_jalleenmyyjat?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-category&utm_content=weather_cta';
+    : `Moro {{CONTACT \`ucfw(subscriber_first_name)\`}}! Nämä on juuri nyt suosiossa — ettei vaan naapurin Pertti oo jo tilannut 👀`;
 
   let html = `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fff;">
@@ -204,6 +205,7 @@ module.exports = async function handler(req, res) {
           <td>
             <p style="margin:0 0 4px 0;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#BD4580;font-weight:bold;font-family:Arial,sans-serif;">Suosituimmat — ${label}</p>
             <h2 style="margin:0 0 8px 0;font-size:20px;font-weight:bold;color:#111;font-family:Arial,sans-serif;line-height:1.3;">${funTitle}</h2>
+            <p style="margin:0 0 8px 0;font-size:11px;color:#ccc;font-family:monospace;">CONTACT testi: {{CONTACT `ucfw(subscriber_first_name)`}}</p>
             ${weatherLine ? `<p style="margin:0 0 6px 0;font-size:12px;color:#888;font-family:Arial,sans-serif;">${weatherLine}</p>` : ''}
             ${weatherPromo ? `<p style="margin:0 0 8px 0;font-size:13px;color:#555;line-height:1.5;font-family:Arial,sans-serif;">${weatherPromo}</p>` : ''}
             ${weatherCta ? `<a href="{{LINK \`${dealerUrl}\`}}" style="display:inline-block;background:#BD4580;color:#fff;text-decoration:none;padding:8px 18px;border-radius:4px;font-size:12px;font-weight:bold;font-family:Arial,sans-serif;">${weatherCta}</a>` : ''}
@@ -228,7 +230,6 @@ module.exports = async function handler(req, res) {
 </table>`;
   } else {
     const hero = products[0];
-    // HERO — versio 1: backtick
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-bottom:3px solid #BD4580;">
   <tr>
@@ -257,14 +258,8 @@ module.exports = async function handler(req, res) {
     products.slice(1).forEach((p, i) => {
       const bg = i % 2 === 0 ? '#fff' : '#fafafa';
       const borderBottom = i < products.length - 2 ? 'border-bottom:1px solid #f0f0f0;' : '';
-      // SLOT 2 — versio 2: single quote
-      // SLOT 3-5 — normaali href
-      const linkHref = i === 0
-        ? `{{LINK '${p.productUrl}'}}`
-        : p.productUrl;
-      const linkLabel = i === 0
-        ? `Katso → (v2 quote)`
-        : `Katso →`;
+      const linkHref = i === 0 ? `{{LINK '${p.productUrl}'}}` : p.productUrl;
+      const linkLabel = i === 0 ? 'Katso → (v2 quote)' : 'Katso →';
 
       html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:${bg};${borderBottom}">
