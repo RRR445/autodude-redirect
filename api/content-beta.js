@@ -1,3 +1,7 @@
+// GR-tagit muuttujina — ei sekoita JS template literaaleja
+const GR_LINK_O = '{{LINK `';
+const GR_LINK_C = '`}}';
+
 module.exports = async function handler(req, res) {
   const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTXl_5Pil_OW6Du4iL5BG7Cnp4_d1eC-2jbfxgS2pax9piqalt0RwAgtyZI6P11bobUQUkkYaOg9RNh/pub?gid=2120963522&single=true&output=csv';
 
@@ -60,6 +64,10 @@ module.exports = async function handler(req, res) {
   function reviewLine(score, count) {
     if (!score) return '';
     return `<p style="margin:0 0 6px 0;font-size:11px;font-family:Arial,sans-serif;">${renderStars(score)}&nbsp;<span style="color:#888;">${parseFloat(score).toFixed(1)} (${count} arvostelua)</span></p>`;
+  }
+
+  function link(url) {
+    return GR_LINK_O + url + GR_LINK_C;
   }
 
   function aiBullets(aiText) {
@@ -178,7 +186,7 @@ module.exports = async function handler(req, res) {
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td width="160" style="vertical-align:middle;padding-right:16px;">
-            <a href="${hero.productUrl}">
+            <a href="${link(hero.productUrl)}">
               <img src="${hero.imageUrl}" width="160" height="160" style="display:block;border-radius:8px;object-fit:cover;" alt="${hero.title}">
             </a>
           </td>
@@ -187,7 +195,7 @@ module.exports = async function handler(req, res) {
             ${reviewLine(hero.reviewScore, hero.reviewCount)}
             ${aiBullets(hero.aiText)}
             <p style="margin:0 0 12px 0;">${priceBlock(hero.rawPrice, hero.rawSale, true)}</p>
-            <a href="${hero.productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
+            <a href="${link(hero.productUrl)}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
           </td>
         </tr>
       </table>
@@ -203,7 +211,7 @@ module.exports = async function handler(req, res) {
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:${bg};${borderBottom}">
   <tr>
     <td width="80" style="padding:10px 10px 10px 20px;vertical-align:middle;">
-      <a href="${p.productUrl}">
+      <a href="${link(p.productUrl)}">
         <img src="${p.imageUrl}" width="75" height="75" style="display:block;border-radius:6px;object-fit:cover;" alt="${p.title}">
       </a>
     </td>
@@ -214,7 +222,7 @@ module.exports = async function handler(req, res) {
     </td>
     <td width="130" style="padding:10px 20px 10px 8px;vertical-align:middle;text-align:right;white-space:nowrap;">
       <p style="margin:0 0 8px 0;text-align:right;">${priceBlock(p.rawPrice, p.rawSale, false)}</p>
-      <a href="${p.productUrl}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a>
+      <a href="${link(p.productUrl)}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso →</a>
     </td>
   </tr>
 </table>`;
