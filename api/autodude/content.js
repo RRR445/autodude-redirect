@@ -120,7 +120,7 @@ module.exports = async function handler(req, res) {
     products.push({
       slot,
       title:       get(cols, 1),
-      productUrl:  get(cols, 3),
+      productUrl:  get(cols, 3) + '?utm_source=gr&utm_medium=email&utm_campaign=AD.FIa-top5&utm_content=slot' + slot,
       imageUrl:    get(cols, 4),
       rawPrice:    get(cols, 5),
       rawSale:     get(cols, 6),
