@@ -166,10 +166,45 @@ module.exports = async function handler(req, res) {
   </tr>
 </table>`;
 
-  // ============ #3 LISTA (kaikki 5 tasavertaisina) ============
-  products.forEach((p, i) => {
+  // ============ #3 HERO (#1) ============
+  const hero = products[0];
+  const rest = products.slice(1);
+
+  if (hero) {
+    html += `
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:#fafafa;border-bottom:3px solid #BD4580;">
+  <tr>
+    <td style="padding:16px 20px 8px 20px;">
+      <p style="margin:0;font-size:10px;font-weight:bold;color:#BD4580;text-transform:uppercase;letter-spacing:1px;font-family:Arial,sans-serif;">🏆 #1 Katsotuimmat tällä viikolla</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:8px 20px 20px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td width="160" style="vertical-align:middle;padding-right:16px;">
+            <a href="${link(hero.productUrl)}">
+              <img src="${hero.imageUrl}" width="160" height="160" style="display:block;border-radius:8px;object-fit:cover;" alt="${hero.title}">
+            </a>
+          </td>
+          <td style="vertical-align:top;">
+            <p style="margin:0 0 6px 0;font-size:15px;font-weight:bold;color:#111;line-height:1.3;font-family:Arial,sans-serif;">${hero.title}</p>
+            ${reviewLine(hero.reviewScore, hero.reviewCount)}
+            ${aiBullets(hero.aiText)}
+            <p style="margin:0 0 12px 0;">${priceBlock(hero.rawPrice, hero.rawSale, true)}</p>
+            <a href="${link(hero.productUrl)}" style="background-color:#BD4580;color:#fff;text-decoration:none;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:bold;display:inline-block;font-family:Arial,sans-serif;">Katso tuote →</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
+  }
+
+  // ============ #4 LISTA (#2-#5) ============
+  rest.forEach((p, i) => {
     const bg = i % 2 === 0 ? '#fff' : '#fafafa';
-    const borderBottom = i < products.length - 1 ? 'border-bottom:1px solid #f0f0f0;' : '';
+    const borderBottom = i < rest.length - 1 ? 'border-bottom:1px solid #f0f0f0;' : '';
     html += `
 <table width="560" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;background:${bg};${borderBottom}">
   <tr>
