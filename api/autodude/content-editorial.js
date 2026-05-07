@@ -6,15 +6,7 @@
 const SHEET_ID = '1hjoRWF5HtV-mXlIHdbzyYRUJWQqu_p91zNFohSjxtEI';
 
 module.exports = async function handler(req, res) {
-  // EditorialContent-välilehden GID — päivitä tähän oikea GID kun olet luonut välilehden
-  // Löydät sen Sheetsin URL:sta: ...#gid=XXXXXXX
-  const GID = process.env.EDITORIAL_GID || '';
-
-  if (!GID) {
-    res.status(500).send('<p style="font-family:Arial;color:#c00;">Virhe: EDITORIAL_GID ei asetettu Vercel-ympäristömuuttujiin.</p>');
-    return;
-  }
-
+  const GID    = '527252308'; // EditorialContent-välilehti
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
   try {
