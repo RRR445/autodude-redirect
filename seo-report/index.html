@@ -101,7 +101,6 @@
   .status-btn.fixed:hover { background: #ffeeee; color: #ff3b30; }
   .status-btn:disabled { opacity: 0.5; cursor: default; }
 
-  .status-loading { font-size: 12px; color: #999; font-style: italic; }
 
   @media (max-width: 768px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
@@ -113,7 +112,7 @@
 
 <header>
   <h1>SEO Pipeline — Virheraportti</h1>
-  <span id="statusLoadIndicator">Ladataan statukset… &nbsp; Generoitu: 2026-05-11</span>
+  <span id="statusLoadIndicator">Generoitu: 2026-05-11</span>
 </header>
 
 <div class="container">
@@ -220,46 +219,34 @@ function errorKey(e) {
   return [e['Sivusto'], e['Source URL'], e['Broken URL'], e['Virhetyyppi']].join('||');
 }
 
-async function loadStatuses() {
+const LS_KEY = 'seo-status-v1';
+
+function loadStatuses() {
   try {
-    const res = await fetch('/api/seo-status');
-    if (res.ok) statusMap = await res.json();
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) statusMap = JSON.parse(saved);
   } catch(e) {
-    console.warn('Status API ei vastaa (paikallinen käyttö?):', e.message);
+    console.warn('localStorage ei käytettävissä:', e.message);
   }
   document.getElementById('statusLoadIndicator').textContent = 'Generoitu: 2026-05-11';
   renderTable();
 }
 
-async function markStatus(key, newStatus, btn) {
-  btn.disabled = true;
-  const prev = btn.textContent;
-  btn.textContent = '…';
+function markStatus(key, newStatus, btn) {
+  if (newStatus === 'Avoin') delete statusMap[key];
+  else statusMap[key] = newStatus;
   try {
-    const res = await fetch('/api/seo-status', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({key, status: newStatus})
-    });
-    if (!res.ok) throw new Error(await res.text());
-    if (newStatus === 'Avoin') delete statusMap[key];
-    else statusMap[key] = newStatus;
-    renderTable();
+    localStorage.setItem(LS_KEY, JSON.stringify(statusMap));
   } catch(e) {
-    console.error('markStatus error:', e);
-    btn.disabled = false;
-    btn.textContent = prev;
-    alert('Tallennus epäonnistui: ' + e.message);
+    console.warn('localStorage tallennus epäonnistui:', e.message);
   }
+  renderTable();
 }
 
-// Event delegation — vältetään onclick-attribuuttien URL-enkoodausongelmat
 document.getElementById('errorTableBody').addEventListener('click', function(ev) {
   const btn = ev.target.closest('.status-btn');
   if (!btn) return;
-  const key = btn.dataset.key;
-  const action = btn.dataset.action;
-  markStatus(key, action, btn);
+  markStatus(btn.dataset.key, btn.dataset.action, btn);
 });
 
 const sites = [...new Set(ALL_ERRORS.map(e => e['Sivusto']))].sort();
@@ -294,7 +281,7 @@ function prioBadge(p) {
 }
 
 function shortUrl(url) {
-  try { return decodeURIComponent(url).replace(/https?:\/\/[^/]+/, ''); }
+  try { return decodeURIComponent(url).replace(/https?:[/][/][^/]+/, ''); }
   catch { return url; }
 }
 
