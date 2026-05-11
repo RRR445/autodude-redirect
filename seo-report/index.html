@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Pipeline — Raportti 2026-05-11</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          background: #f5f5f7; color: #1d1d1f; font-size: 14px; }
+
+  header { background: #1d1d1f; color: #fff; padding: 24px 32px;
+            display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 20px; font-weight: 600; }
+  header span { font-size: 13px; color: #999; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: #fff; border-radius: 12px; padding: 20px 24px;
+                box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 4px solid; }
+  .stat-card.p1 { border-color: #ff3b30; }
+  .stat-card.p2 { border-color: #ff9500; }
+  .stat-card.p3 { border-color: #ffcc00; }
+  .stat-card.p4 { border-color: #007aff; }
+  .stat-card .num { font-size: 36px; font-weight: 700; line-height: 1; }
+  .stat-card .label { font-size: 12px; color: #666; margin-top: 6px; }
+  .stat-card.p1 .num { color: #ff3b30; }
+  .stat-card.p2 .num { color: #ff9500; }
+  .stat-card.p3 .num { color: #b8860b; }
+  .stat-card.p4 .num { color: #007aff; }
+
+  .section { background: #fff; border-radius: 12px; padding: 24px;
+              box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 24px; }
+  .section h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px;
+                 padding-bottom: 12px; border-bottom: 1px solid #e5e5e7; }
+
+  .dash-table { width: 100%; border-collapse: collapse; }
+  .dash-table th { text-align: left; font-size: 12px; font-weight: 600;
+                    color: #666; padding: 8px 12px; border-bottom: 1px solid #e5e5e7; }
+  .dash-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+  .dash-table tr:last-child td { border-bottom: none; }
+  .dash-table tr:hover td { background: #f9f9f9; }
+  .site-cell { font-weight: 500; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 600; min-width: 32px; text-align: center; }
+  .badge-p1 { background: #fff0ee; color: #ff3b30; }
+  .badge-p2 { background: #fff5e6; color: #cc7000; }
+  .badge-p3 { background: #fffbe6; color: #b8860b; }
+  .badge-p4 { background: #e8f0ff; color: #007aff; }
+  .badge-zero { background: #f0f0f0; color: #aaa; }
+
+  .filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd;
+                 background: #fff; cursor: pointer; font-size: 13px; transition: all .15s; }
+  .filter-btn:hover { background: #f0f0f0; }
+  .filter-btn.active { background: #1d1d1f; color: #fff; border-color: #1d1d1f; }
+  .filter-btn.p1 { border-color: #ff3b30; color: #ff3b30; }
+  .filter-btn.p1.active { background: #ff3b30; color: #fff; }
+  .filter-btn.p2 { border-color: #ff9500; color: #cc7000; }
+  .filter-btn.p2.active { background: #ff9500; color: #fff; }
+  .filter-btn.p3 { border-color: #ffcc00; color: #b8860b; }
+  .filter-btn.p3.active { background: #ffcc00; color: #333; }
+  .filter-btn.p4 { border-color: #007aff; color: #007aff; }
+  .filter-btn.p4.active { background: #007aff; color: #fff; }
+  .filter-btn.hide-fixed { border-color: #34c759; color: #34c759; }
+  .filter-btn.hide-fixed.active { background: #34c759; color: #fff; border-color: #34c759; }
+
+  .search-box { padding: 7px 14px; border: 1px solid #ddd; border-radius: 8px;
+                 font-size: 13px; width: 240px; outline: none; }
+  .search-box:focus { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,.1); }
+
+  .site-filter { padding: 7px 14px; border: 1px solid #ddd; border-radius: 8px;
+                  font-size: 13px; outline: none; background: #fff; }
+
+  .error-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .error-table th { text-align: left; font-size: 12px; font-weight: 600; color: #666;
+                     padding: 8px 12px; border-bottom: 2px solid #e5e5e7;
+                     position: sticky; top: 0; background: #fff; }
+  .error-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0;
+                     vertical-align: top; max-width: 0; }
+  .error-table tr:last-child td { border-bottom: none; }
+  .error-table tr:hover td { background: #f9f9f9; }
+  .error-table tr.is-fixed { opacity: 0.4; }
+
+  .url-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .url-cell a { color: #007aff; text-decoration: none; font-family: monospace; font-size: 12px; }
+  .url-cell a:hover { text-decoration: underline; }
+
+  .count-label { font-size: 13px; color: #666; margin-bottom: 12px; }
+  .count-label strong { color: #1d1d1f; }
+
+  .no-results { text-align: center; padding: 48px; color: #999; font-size: 15px; }
+
+  .status-btn { padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer;
+                 font-size: 12px; font-weight: 500; transition: all .15s; white-space: nowrap; }
+  .status-btn.open { background: #f0f0f0; color: #555; }
+  .status-btn.open:hover { background: #34c759; color: #fff; }
+  .status-btn.fixed { background: #e6f9ec; color: #1a8f3c; }
+  .status-btn.fixed:hover { background: #ffeeee; color: #ff3b30; }
+  .status-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .status-loading { font-size: 12px; color: #999; font-style: italic; }
+
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .container { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SEO Pipeline — Virheraportti</h1>
+  <span id="statusLoadIndicator">Ladataan statukset… &nbsp; Generoitu: 2026-05-11</span>
+</header>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="stat-card p1">
+      <div class="num">13</div>
+      <div class="label">🔴 P1 — Kriittiset<br>404-sivut, rikkinäiset kuvat</div>
+    </div>
+    <div class="stat-card p2">
+      <div class="num">11</div>
+      <div class="label">🟠 P2 — Vakavat<br>Redirect-ketjut, väärät URL:t</div>
+    </div>
+    <div class="stat-card p3">
+      <div class="num">0</div>
+      <div class="label">🟡 P3 — Kehityskohteet<br>Orvot sivut, sitemap, thin content</div>
+    </div>
+    <div class="stat-card p4">
+      <div class="num">3</div>
+      <div class="label">🔵 P4 — Seuranta<br>CDN-kuvat, 3xx-ohjaukset</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Yhteenveto sivustoittain</h2>
+    <table class="dash-table">
+      <thead>
+        <tr>
+          <th>Sivusto</th>
+          <th>🔴 P1</th>
+          <th>🟠 P2</th>
+          <th>🟡 P3</th>
+          <th>🔵 P4</th>
+          <th>Yhteensä</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+            <td class="site-cell">autodude.fi</td>
+            <td><span class="badge badge-p1">1</span></td>
+            <td><span class="badge badge-p2">11</span></td>
+            <td><span class="badge badge-p3">0</span></td>
+            <td><span class="badge badge-p4">3</span></td>
+            <td><strong>15</strong></td>
+        </tr>
+        <tr>
+            <td class="site-cell">motivon.se</td>
+            <td><span class="badge badge-p1">12</span></td>
+            <td><span class="badge badge-zero">0</span></td>
+            <td><span class="badge badge-p3">0</span></td>
+            <td><span class="badge badge-p4">0</span></td>
+            <td><strong>12</strong></td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Kaikki virheet</h2>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all', this)">Kaikki</button>
+      <button class="filter-btn p1" onclick="setFilter('P1', this)">🔴 P1</button>
+      <button class="filter-btn p2" onclick="setFilter('P2', this)">🟠 P2</button>
+      <button class="filter-btn p3" onclick="setFilter('P3', this)">🟡 P3</button>
+      <button class="filter-btn p4" onclick="setFilter('P4', this)">🔵 P4</button>
+      <button class="filter-btn hide-fixed" id="hideFixedBtn" onclick="toggleHideFixed(this)">Piilota korjatut</button>
+      <select class="site-filter" id="siteFilter" onchange="renderTable()">
+        <option value="">Kaikki sivustot</option>
+      </select>
+      <input class="search-box" id="searchBox" type="text"
+             placeholder="Hae URL:n tai virheen mukaan…" oninput="renderTable()">
+    </div>
+
+    <div class="count-label" id="countLabel"></div>
+
+    <div style="overflow-x:auto;">
+      <table class="error-table">
+        <thead>
+          <tr>
+            <th style="width:120px">Sivusto</th>
+            <th style="width:80px">Prior.</th>
+            <th style="width:190px">Virhetyyppi</th>
+            <th>Source URL</th>
+            <th>Todellinen lähde</th>
+            <th>Broken URL</th>
+            <th style="width:100px">Löydetty</th>
+            <th style="width:140px">Tila</th>
+          </tr>
+        </thead>
+        <tbody id="errorTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ALL_ERRORS = [{"Sivusto": "autodude.fi", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen kuva", "Source URL": "https://www.autodude.fi/fi/o/ad-tiedotteet/king_carthur_kiillotusjarjestelma_yksinkertainen_tehokas", "Todellinen lähde": "", "Broken URL": "https://www.autodude.fi/images/autonhoito/tuotekuvat/king_carthur/KC-polishing-system_fin.jpg", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/gunga_lillagunga_classic_bjork", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/c/lillagunga", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/gunga_lillagunga_classic_ek", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/c/lillagunga", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/gunga_lillagunga_classic_valnot", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/c/lillagunga", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/gunga_lillagunga_toddler_ek", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/c/lillagunga", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/hyrox_dinox_traningsset", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/produkt/lopband_dinox_pro", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/hyrox_dinox_traningsset", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/produkt/vaggboll_dinox_pro", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/massagerulle_dinox_cute", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/produkt/yogablock_dinox_cute_22cm", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/rygglyftsbank_dinox_justerbar", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/produkt/viktskiva_dinox_trigrip_tpu", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/viktlas_dinox_magnetic_quick_lock", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/produkt/viktskiva_dinox_metall", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/yoga-block_dinox_cute_22x11x7cm", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/produkt/yogablock_dinox_cute_22cm", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/produkt/yogablock_dinox_cute_23cm", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/produkt/yogablock_dinox_cute_22cm", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "motivon.se", "Vakavuus": "🔴 P1 — Kriittinen", "Prioriteetti": "P1", "Virhetyyppi": "404 — Rikkinäinen sivu", "Source URL": "https://www.motivon.se/sv/prodult/gunga_lillagunga_classic_noir", "Todellinen lähde": "", "Broken URL": "https://www.motivon.se/sv/c/lillagunga", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Väärä URL-rakenne (/tuote/ ilman /fi/)", "Source URL": "https://www.autodude.fi/tuote/autovaha_king_carthur_endurance/?wax314", "Todellinen lähde": "https://www.autodude.fi/fi/tuote/autovaha_chemical_guys_project_j97", "Broken URL": "https://www.autodude.fi/tuote/autovaha_king_carthur_endurance?wax314=", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Väärä URL-rakenne (/tuote/ ilman /fi/)", "Source URL": "https://www.autodude.fi/tuote/autovaha_king_carthur_high_gloss/?endurance", "Todellinen lähde": "https://www.autodude.fi/fi/tuote/autovaha_king_carthur_endurance", "Broken URL": "https://www.autodude.fi/tuote/autovaha_king_carthur_high_gloss?endurance=", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Väärä URL-rakenne (/tuote/ ilman /fi/)", "Source URL": "https://www.autodude.fi/tuote/autovaha_soft99_fusso_coat/?wax314", "Todellinen lähde": "https://www.autodude.fi/fi/tuote/autovaha_chemical_guys_project_j97", "Broken URL": "https://www.autodude.fi/tuote/autovaha_soft99_fusso_coat?wax314=", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Väärä URL-rakenne (/tuote/ ilman /fi/)", "Source URL": "https://www.autodude.fi/tuote/raudanpoistoaine_valetpro_dragons_breath/?raudanpoistotutkimus", "Todellinen lähde": "https://www.autodude.fi/fi/o/ad-autonhoito/raudanpoistoaineiden_tutkimus", "Broken URL": "https://www.autodude.fi/tuote/raudanpoistoaine_valetpro_dragons_breath?raudanpoistotutkimus=", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Vanha URL-rakenne (/tuotteet/)", "Source URL": "https://www.autodude.fi/tuotteet/autovahat/?j97", "Todellinen lähde": "https://www.autodude.fi/fi/tuote/autovaha_chemical_guys_project_j97", "Broken URL": "https://www.autodude.fi/tuotteet/autovahat?j97=", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Vanha URL-rakenne (/tuotteet/)", "Source URL": "https://www.autodude.fi/tuotteet/autovahat/quick_detailerit/", "Todellinen lähde": "https://www.autodude.fi/fi/o/ad-autonhoito/auto_myynti", "Broken URL": "https://www.autodude.fi/tuotteet/autovahat/quick_detailerit", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Vanha URL-rakenne (/tuotteet/)", "Source URL": "https://www.autodude.fi/tuotteet/kumi_muovihoito/", "Todellinen lähde": "https://www.autodude.fi/fi/o/ad-autonhoito/auto_myynti", "Broken URL": "https://www.autodude.fi/tuotteet/kumi_muovihoito", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Vanha URL-rakenne (/tuotteet/)", "Source URL": "https://www.autodude.fi/tuotteet/kumi_muovihoito/muovinhoito_muovinhoitotuotteet/", "Todellinen lähde": "https://www.autodude.fi/fi/o/ad-autonhoito/auto_myynti", "Broken URL": "https://www.autodude.fi/tuotteet/kumi_muovihoito/muovinhoito_muovinhoitotuotteet", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Vanha URL-rakenne (/tuotteet/)", "Source URL": "https://www.autodude.fi/tuotteet/kumi_muovihoito/rengaskiillokkeet/", "Todellinen lähde": "https://www.autodude.fi/fi/o/ad-autonhoito/auto_myynti", "Broken URL": "https://www.autodude.fi/tuotteet/kumi_muovihoito/rengaskiillokkeet", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Vanha URL-rakenne (/tuotteet/)", "Source URL": "https://www.autodude.fi/tuotteet/raudanpoisto_pienpoisto/?tutkimusartikkeli", "Todellinen lähde": "https://www.autodude.fi/fi/o/ad-autonhoito/raudanpoistoaineiden_tutkimus", "Broken URL": "https://www.autodude.fi/tuotteet/raudanpoisto_pienpoisto?tutkimusartikkeli=", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🟠 P2 — Vakava", "Prioriteetti": "P2", "Virhetyyppi": "Vanha URL-rakenne (/tuotteet/)", "Source URL": "https://www.autodude.fi/tuotteet/sisatilojen_hoito/tekstiilienhoito/", "Todellinen lähde": "https://www.autodude.fi/fi/o/ad-autonhoito/kangasverhoilu_pesu_suojaus", "Broken URL": "https://www.autodude.fi/tuotteet/sisatilojen_hoito/tekstiilienhoito", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🔵 P4 — Seuranta", "Prioriteetti": "P4", "Virhetyyppi": "CDN-kuva puuttuu", "Source URL": "https://www.autodude.fi/fi/o/ad-autonhoito/auton_yllapitopesu", "Todellinen lähde": "", "Broken URL": "https://cdn.handshake.fi/i/products/Pre_wash_King_Carthur_Control_Snow_Foam/kc_control_customer_image_1_1.jpeg", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🔵 P4 — Seuranta", "Prioriteetti": "P4", "Virhetyyppi": "CDN-kuva puuttuu", "Source URL": "https://www.autodude.fi/fi/o/ad-autonhoito/auton_yllapitopesu", "Todellinen lähde": "", "Broken URL": "https://cdn.handshake.fi/i/others/2024-02-13/kc_control_customer_image_1_1", "Löydetty": "2026-05-11", "Tila": "Avoin"}, {"Sivusto": "autodude.fi", "Vakavuus": "🔵 P4 — Seuranta", "Prioriteetti": "P4", "Virhetyyppi": "CDN-kuva puuttuu", "Source URL": "https://www.autodude.fi/fi/o/ppf_asennusopas", "Todellinen lähde": "", "Broken URL": "https://cdn.handshake.fi/i/products/Paint_Protection_Film_Gyeon_PPF_Black/gyeon_ppf_black_4_1.jpg", "Löydetty": "2026-05-11", "Tila": "Avoin"}];
+let currentFilter = 'all';
+let hideFixed = false;
+let statusMap = {};
+
+function errorKey(e) {
+  return [e['Sivusto'], e['Source URL'], e['Broken URL'], e['Virhetyyppi']].join('||');
+}
+
+async function loadStatuses() {
+  try {
+    const res = await fetch('/api/seo-status');
+    if (res.ok) statusMap = await res.json();
+  } catch(e) {
+    console.warn('Status API ei vastaa (paikallinen käyttö?):', e.message);
+  }
+  document.getElementById('statusLoadIndicator').textContent = 'Generoitu: 2026-05-11';
+  renderTable();
+}
+
+async function markStatus(key, newStatus, btn) {
+  btn.disabled = true;
+  const prev = btn.textContent;
+  btn.textContent = '…';
+  try {
+    const res = await fetch('/api/seo-status', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({key, status: newStatus})
+    });
+    if (!res.ok) throw new Error(await res.text());
+    if (newStatus === 'Avoin') delete statusMap[key];
+    else statusMap[key] = newStatus;
+    renderTable();
+  } catch(e) {
+    console.error('markStatus error:', e);
+    btn.disabled = false;
+    btn.textContent = prev;
+    alert('Tallennus epäonnistui: ' + e.message);
+  }
+}
+
+// Event delegation — vältetään onclick-attribuuttien URL-enkoodausongelmat
+document.getElementById('errorTableBody').addEventListener('click', function(ev) {
+  const btn = ev.target.closest('.status-btn');
+  if (!btn) return;
+  const key = btn.dataset.key;
+  const action = btn.dataset.action;
+  markStatus(key, action, btn);
+});
+
+const sites = [...new Set(ALL_ERRORS.map(e => e['Sivusto']))].sort();
+const sel = document.getElementById('siteFilter');
+sites.forEach(s => {
+  const o = document.createElement('option');
+  o.value = s; o.textContent = s;
+  sel.appendChild(o);
+});
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn:not(.hide-fixed)').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function toggleHideFixed(btn) {
+  hideFixed = !hideFixed;
+  btn.classList.toggle('active', hideFixed);
+  renderTable();
+}
+
+function prioBadge(p) {
+  const map = {
+    P1: '<span class="badge badge-p1">🔴 P1</span>',
+    P2: '<span class="badge badge-p2">🟠 P2</span>',
+    P3: '<span class="badge badge-p3">🟡 P3</span>',
+    P4: '<span class="badge badge-p4">🔵 P4</span>',
+  };
+  return map[p] || p;
+}
+
+function shortUrl(url) {
+  try { return decodeURIComponent(url).replace(/https?:\/\/[^/]+/, ''); }
+  catch { return url; }
+}
+
+function renderTable() {
+  const search = document.getElementById('searchBox').value.toLowerCase();
+  const site   = document.getElementById('siteFilter').value;
+
+  const filtered = ALL_ERRORS.filter(e => {
+    if (currentFilter !== 'all' && e['Prioriteetti'] !== currentFilter) return false;
+    if (site && e['Sivusto'] !== site) return false;
+    const status = statusMap[errorKey(e)] || 'Avoin';
+    if (hideFixed && status === 'Korjattu') return false;
+    if (search) {
+      const hay = (e['Source URL'] + e['Broken URL'] + e['Virhetyyppi'] + e['Sivusto']).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  const lbl = document.getElementById('countLabel');
+  lbl.innerHTML = `Näytetään <strong>${filtered.length}</strong> / ${ALL_ERRORS.length} virhettä`;
+
+  const tbody = document.getElementById('errorTableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="no-results">Ei virheitä valituilla suodattimilla</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(e => {
+    const key = errorKey(e);
+    const status = statusMap[key] || 'Avoin';
+    const isFixed = status === 'Korjattu';
+    const btnHtml = isFixed
+      ? `<button class="status-btn fixed" data-key="${escAttr(key)}" data-action="Avoin">✓ Korjattu</button>`
+      : `<button class="status-btn open"  data-key="${escAttr(key)}" data-action="Korjattu">Merkitse korjatuksi</button>`;
+    return `
+    <tr class="${isFixed ? 'is-fixed' : ''}">
+      <td>${e['Sivusto']}</td>
+      <td>${prioBadge(e['Prioriteetti'])}</td>
+      <td>${e['Virhetyyppi']}</td>
+      <td class="url-cell" style="max-width:200px" title="${e['Source URL']}">
+        <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
+      </td>
+      <td class="url-cell" style="max-width:200px" title="${e['Todellinen lähde'] || ''}">
+        ${e['Todellinen lähde']
+          ? `<a href="${e['Todellinen lähde']}" target="_blank" style="color:#34c759">${shortUrl(e['Todellinen lähde'])}</a>`
+          : '<span style="color:#ccc">—</span>'}
+      </td>
+      <td class="url-cell" style="max-width:200px" title="${e['Broken URL']}">
+        <a href="${e['Broken URL']}" target="_blank">${shortUrl(e['Broken URL'])}</a>
+      </td>
+      <td>${e['Löydetty']}</td>
+      <td>${btnHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function escAttr(s) {
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
+
+loadStatuses();
+</script>
+</body>
+</html>
