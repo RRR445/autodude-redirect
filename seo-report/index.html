@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO Pipeline — Raportti 2026-05-14</title>
+<title>SEO Pipeline — Raportti 2026-05-22</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -112,7 +113,7 @@
 
 <header>
   <h1>SEO Pipeline — Virheraportti</h1>
-  <span id="statusLoadIndicator">Generoitu: 2026-05-14</span>
+  <span id="statusLoadIndicator">Generoitu: 2026-05-22</span>
 </header>
 
 <div class="container">
@@ -287,32 +288,47 @@ let currentFilter = 'all';
 let hideFixed = false;
 let statusMap = {};
 
+const SUPABASE_URL = 'https://nmienbjovogvhcothkuz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5taWVuYmpvdm9ndmhjb3Roa3V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNjA2MDcsImV4cCI6MjA5NDkzNjYwN30.urX1wnPqA7vJ5d6-LDK5Mmwx0z9YkUFe2am3NLv2wQY';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 function errorKey(e) {
   return [e['Sivusto'], e['Source URL'], e['Broken URL'], e['Virhetyyppi']].join('||');
 }
 
-const LS_KEY = 'seo-status-v1';
-
-function loadStatuses() {
+async function loadStatuses() {
   try {
-    const saved = localStorage.getItem(LS_KEY);
-    if (saved) statusMap = JSON.parse(saved);
+    const { data, error } = await sb.from('seo_status').select('key, status');
+    if (error) throw error;
+    statusMap = {};
+    (data || []).forEach(r => statusMap[r.key] = r.status);
   } catch(e) {
-    console.warn('localStorage ei käytettävissä:', e.message);
+    console.warn('Supabase lataus epäonnistui:', e.message);
   }
-  document.getElementById('statusLoadIndicator').textContent = 'Generoitu: 2026-05-14';
+  document.getElementById('statusLoadIndicator').textContent = 'Generoitu: 2026-05-22';
   renderTable();
 }
 
-function markStatus(key, newStatus, btn) {
-  if (newStatus === 'Avoin') delete statusMap[key];
-  else statusMap[key] = newStatus;
+async function markStatus(key, newStatus, btn) {
+  btn.disabled = true;
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(statusMap));
+    if (newStatus === 'Avoin') {
+      const { error } = await sb.from('seo_status').delete().eq('key', key);
+      if (error) throw error;
+      delete statusMap[key];
+    } else {
+      const { error } = await sb.from('seo_status').upsert({
+        key, status: newStatus, updated_at: new Date().toISOString()
+      });
+      if (error) throw error;
+      statusMap[key] = newStatus;
+    }
+    renderTable();
   } catch(e) {
-    console.warn('localStorage tallennus epäonnistui:', e.message);
+    console.error('Tallennus epäonnistui:', e.message);
+    btn.disabled = false;
+    alert('Tallennus epäonnistui: ' + e.message);
   }
-  renderTable();
 }
 
 document.getElementById('errorTableBody').addEventListener('click', function(ev) {
