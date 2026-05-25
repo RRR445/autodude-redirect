@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO Pipeline — Raportti 2026-05-25</title>
+<title>SEO Pipeline — Report 2026-05-25</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
@@ -116,8 +116,8 @@
 <body>
 
 <header>
-  <h1>SEO Pipeline — Virheraportti</h1>
-  <span id="statusLoadIndicator">Generoitu: 2026-05-25</span>
+  <h1>SEO Pipeline — Error Report</h1>
+  <span id="statusLoadIndicator">Generated: 2026-05-25</span>
 </header>
 
 <div class="container">
@@ -125,33 +125,33 @@
   <div class="stats">
     <div class="stat-card p1">
       <div class="num">1336</div>
-      <div class="label">🔴 P1 — Kriittiset<br>404-sivut, rikkinäiset kuvat</div>
+      <div class="label">🔴 P1 — Critical<br>Broken pages, broken images</div>
     </div>
     <div class="stat-card p2">
       <div class="num">5</div>
-      <div class="label">🟠 P2 — Vakavat<br>Redirect-ketjut, väärät URL:t</div>
+      <div class="label">🟠 P2 — Serious<br>Redirect chains, wrong URLs</div>
     </div>
     <div class="stat-card p3">
       <div class="num">0</div>
-      <div class="label">🟡 P3 — Kehityskohteet<br>Orvot sivut, sitemap, thin content</div>
+      <div class="label">🟡 P3 — Improvements<br>Orphan pages, sitemap, thin content</div>
     </div>
     <div class="stat-card p4">
       <div class="num">121</div>
-      <div class="label">🔵 P4 — Seuranta<br>CDN-kuvat, 3xx-ohjaukset</div>
+      <div class="label">🔵 P4 — Monitoring<br>CDN images, 3xx redirects</div>
     </div>
   </div>
 
   <div class="section">
-    <h2>Yhteenveto sivustoittain</h2>
+    <h2>Summary by site</h2>
     <table class="dash-table">
       <thead>
         <tr>
-          <th>Sivusto</th>
+          <th>Site</th>
           <th>🔴 P1</th>
           <th>🟠 P2</th>
           <th>🟡 P3</th>
           <th>🔵 P4</th>
-          <th>Yhteensä</th>
+          <th>Total</th>
         </tr>
       </thead>
       <tbody>
@@ -247,33 +247,33 @@
   </div>
 
   <div class="section">
-    <h2>Kehitys ajan yli</h2>
+    <h2>Trend over time</h2>
     <select class="chart-site-sel" id="chartSiteFilter" onchange="updateChart()">
-      <option value="">Kaikki sivustot (yhteensä)</option>
+      <option value="">All sites (combined)</option>
     </select>
     <div class="chart-wrap">
       <canvas id="trendChart"></canvas>
     </div>
     <p id="chartEmpty" style="text-align:center;color:#999;padding:24px;display:none">
-      Historiadataa ei vielä saatavilla — ilmestyy ensimmäisen ajastetun crawlin jälkeen
+      No history data yet — will appear after the first scheduled crawl
     </p>
   </div>
 
   <div class="section">
-    <h2>Kaikki virheet</h2>
+    <h2>All issues</h2>
 
     <div class="filters">
-      <button class="filter-btn active" onclick="setFilter('all', this)">Kaikki</button>
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
       <button class="filter-btn p1" onclick="setFilter('P1', this)">🔴 P1</button>
       <button class="filter-btn p2" onclick="setFilter('P2', this)">🟠 P2</button>
       <button class="filter-btn p3" onclick="setFilter('P3', this)">🟡 P3</button>
       <button class="filter-btn p4" onclick="setFilter('P4', this)">🔵 P4</button>
-      <button class="filter-btn hide-fixed" id="hideFixedBtn" onclick="toggleHideFixed(this)">Piilota korjatut</button>
+      <button class="filter-btn hide-fixed" id="hideFixedBtn" onclick="toggleHideFixed(this)">Hide fixed</button>
       <select class="site-filter" id="siteFilter" onchange="renderTable()">
-        <option value="">Kaikki sivustot</option>
+        <option value="">All sites</option>
       </select>
       <input class="search-box" id="searchBox" type="text"
-             placeholder="Hae URL:n tai virheen mukaan…" oninput="renderTable()">
+             placeholder="Search by URL or issue type…" oninput="renderTable()">
     </div>
 
     <div class="count-label" id="countLabel"></div>
@@ -282,14 +282,14 @@
       <table class="error-table">
         <thead>
           <tr>
-            <th style="width:120px">Sivusto</th>
-            <th style="width:80px">Prior.</th>
-            <th style="width:190px">Virhetyyppi</th>
+            <th style="width:120px">Site</th>
+            <th style="width:80px">Priority</th>
+            <th style="width:190px">Issue type</th>
             <th>Source URL</th>
-            <th>Todellinen lähde</th>
+            <th>Real source</th>
             <th>Broken URL</th>
-            <th style="width:100px">Löydetty</th>
-            <th style="width:140px">Tila</th>
+            <th style="width:100px">Found</th>
+            <th style="width:140px">Status</th>
           </tr>
         </thead>
         <tbody id="errorTableBody"></tbody>
@@ -322,14 +322,14 @@ async function loadStatuses() {
   } catch(e) {
     console.warn('Supabase lataus epäonnistui:', e.message);
   }
-  document.getElementById('statusLoadIndicator').textContent = 'Generoitu: 2026-05-25';
+  document.getElementById('statusLoadIndicator').textContent = 'Generated: 2026-05-25';
   renderTable();
 }
 
 async function markStatus(key, newStatus, btn) {
   btn.disabled = true;
   try {
-    if (newStatus === 'Avoin') {
+    if (newStatus === 'Open') {
       const { error } = await sb.from('seo_status').delete().eq('key', key);
       if (error) throw error;
       delete statusMap[key];
@@ -342,9 +342,9 @@ async function markStatus(key, newStatus, btn) {
     }
     renderTable();
   } catch(e) {
-    console.error('Tallennus epäonnistui:', e.message);
+    console.error('Save failed:', e.message);
     btn.disabled = false;
-    alert('Tallennus epäonnistui: ' + e.message);
+    alert('Save failed: ' + e.message);
   }
 }
 
@@ -397,8 +397,8 @@ function renderTable() {
   const filtered = ALL_ERRORS.filter(e => {
     if (currentFilter !== 'all' && e['Prioriteetti'] !== currentFilter) return false;
     if (site && e['Sivusto'] !== site) return false;
-    const status = statusMap[errorKey(e)] || 'Avoin';
-    if (hideFixed && status === 'Korjattu') return false;
+    const status = statusMap[errorKey(e)] || 'Open';
+    if (hideFixed && (status === 'Fixed' || status === 'Korjattu')) return false;
     if (search) {
       const hay = (e['Source URL'] + e['Broken URL'] + e['Virhetyyppi'] + e['Sivusto']).toLowerCase();
       if (!hay.includes(search)) return false;
@@ -407,21 +407,21 @@ function renderTable() {
   });
 
   const lbl = document.getElementById('countLabel');
-  lbl.innerHTML = `Näytetään <strong>${filtered.length}</strong> / ${ALL_ERRORS.length} virhettä`;
+  lbl.innerHTML = `Showing <strong>${filtered.length}</strong> / ${ALL_ERRORS.length} issues`;
 
   const tbody = document.getElementById('errorTableBody');
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="no-results">Ei virheitä valituilla suodattimilla</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="no-results">No issues match the current filters</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(e => {
     const key = errorKey(e);
-    const status = statusMap[key] || 'Avoin';
-    const isFixed = status === 'Korjattu';
+    const status = statusMap[key] || 'Open';
+    const isFixed = status === 'Fixed' || status === 'Korjattu';  // backwards compat
     const btnHtml = isFixed
-      ? `<button class="status-btn fixed" data-key="${escAttr(key)}" data-action="Avoin">✓ Korjattu</button>`
-      : `<button class="status-btn open"  data-key="${escAttr(key)}" data-action="Korjattu">Merkitse korjatuksi</button>`;
+      ? `<button class="status-btn fixed" data-key="${escAttr(key)}" data-action="Open">✓ Fixed</button>`
+      : `<button class="status-btn open"  data-key="${escAttr(key)}" data-action="Fixed">Mark as fixed</button>`;
     return `
     <tr class="${isFixed ? 'is-fixed' : ''}">
       <td>${e['Sivusto']}</td>
@@ -502,7 +502,7 @@ function updateChart() {
       labels: dates,
       datasets: [
         {
-          label: '🔴 P1 Kriittiset',
+          label: '🔴 P1 Critical',
           data: dates.map(d => byDate[d].p1),
           borderColor: '#ff3b30',
           backgroundColor: 'rgba(255,59,48,0.08)',
@@ -512,7 +512,7 @@ function updateChart() {
           fill: false,
         },
         {
-          label: '🟠 P2 Vakavat',
+          label: '🟠 P2 Serious',
           data: dates.map(d => byDate[d].p2),
           borderColor: '#ff9500',
           backgroundColor: 'rgba(255,149,0,0.08)',
@@ -522,7 +522,7 @@ function updateChart() {
           fill: false,
         },
         {
-          label: '🟡 P3 Kehityskohteet',
+          label: '🟡 P3 Improvements',
           data: dates.map(d => byDate[d].p3),
           borderColor: '#d4a017',
           backgroundColor: 'rgba(212,160,23,0.08)',
@@ -532,7 +532,7 @@ function updateChart() {
           fill: false,
         },
         {
-          label: '🔵 P4 Seuranta',
+          label: '🔵 P4 Monitoring',
           data: dates.map(d => byDate[d].p4),
           borderColor: '#007aff',
           backgroundColor: 'rgba(0,122,255,0.08)',
