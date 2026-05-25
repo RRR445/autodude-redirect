@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO Pipeline — Raportti 2026-05-22</title>
+<title>SEO Pipeline — Raportti 2026-05-25</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -102,6 +103,9 @@
   .status-btn.fixed:hover { background: #ffeeee; color: #ff3b30; }
   .status-btn:disabled { opacity: 0.5; cursor: default; }
 
+  .chart-wrap { position: relative; height: 260px; }
+  .chart-site-sel { padding: 7px 14px; border: 1px solid #ddd; border-radius: 8px;
+                     font-size: 13px; outline: none; background: #fff; margin-bottom: 16px; }
 
   @media (max-width: 768px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
@@ -113,7 +117,7 @@
 
 <header>
   <h1>SEO Pipeline — Virheraportti</h1>
-  <span id="statusLoadIndicator">Generoitu: 2026-05-22</span>
+  <span id="statusLoadIndicator">Generoitu: 2026-05-25</span>
 </header>
 
 <div class="container">
@@ -243,6 +247,19 @@
   </div>
 
   <div class="section">
+    <h2>Kehitys ajan yli</h2>
+    <select class="chart-site-sel" id="chartSiteFilter" onchange="updateChart()">
+      <option value="">Kaikki sivustot (yhteensä)</option>
+    </select>
+    <div class="chart-wrap">
+      <canvas id="trendChart"></canvas>
+    </div>
+    <p id="chartEmpty" style="text-align:center;color:#999;padding:24px;display:none">
+      Historiadataa ei vielä saatavilla — ilmestyy ensimmäisen ajastetun crawlin jälkeen
+    </p>
+  </div>
+
+  <div class="section">
     <h2>Kaikki virheet</h2>
 
     <div class="filters">
@@ -305,7 +322,7 @@ async function loadStatuses() {
   } catch(e) {
     console.warn('Supabase lataus epäonnistui:', e.message);
   }
-  document.getElementById('statusLoadIndicator').textContent = 'Generoitu: 2026-05-22';
+  document.getElementById('statusLoadIndicator').textContent = 'Generoitu: 2026-05-25';
   renderTable();
 }
 
@@ -432,6 +449,138 @@ function escAttr(s) {
 }
 
 loadStatuses();
+
+// ── Trend chart ───────────────────────────────────────────────────────────────
+let trendChartObj = null;
+const historyData = [{"crawled_at": "2026-05-14", "site": "autodude.dk", "p1": 135, "p2": 0, "p3": 0, "p4": 5, "total": 140}, {"crawled_at": "2026-05-14", "site": "autodude.fi", "p1": 3, "p2": 0, "p3": 0, "p4": 28, "total": 31}, {"crawled_at": "2026-05-14", "site": "autodude.no", "p1": 77, "p2": 0, "p3": 0, "p4": 3, "total": 80}, {"crawled_at": "2026-05-14", "site": "autodude.se", "p1": 53, "p2": 0, "p3": 0, "p4": 5, "total": 58}, {"crawled_at": "2026-05-14", "site": "motivon.fi", "p1": 42, "p2": 0, "p3": 0, "p4": 0, "total": 42}, {"crawled_at": "2026-05-14", "site": "motivon.se", "p1": 12, "p2": 0, "p3": 0, "p4": 0, "total": 12}, {"crawled_at": "2026-05-14", "site": "valostore.com", "p1": 152, "p2": 1, "p3": 0, "p4": 25, "total": 178}, {"crawled_at": "2026-05-14", "site": "valostore.dk", "p1": 482, "p2": 0, "p3": 0, "p4": 12, "total": 494}, {"crawled_at": "2026-05-14", "site": "valostore.fi", "p1": 63, "p2": 45, "p3": 0, "p4": 14, "total": 122}, {"crawled_at": "2026-05-14", "site": "valostore.no", "p1": 232, "p2": 0, "p3": 0, "p4": 7, "total": 239}, {"crawled_at": "2026-05-14", "site": "valostore.se", "p1": 147, "p2": 0, "p3": 0, "p4": 21, "total": 168}];
+
+function loadHistory() {
+  // Populate site selector from history data
+  const historySites = [...new Set(historyData.map(r => r.site))].sort();
+  const chartSel = document.getElementById('chartSiteFilter');
+  historySites.forEach(s => {
+    if (![...chartSel.options].some(o => o.value === s)) {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      chartSel.appendChild(o);
+    }
+  });
+  updateChart();
+}
+
+function updateChart() {
+  const site = document.getElementById('chartSiteFilter').value;
+  let rows = historyData;
+  if (site) rows = rows.filter(r => r.site === site);
+
+  if (rows.length === 0) {
+    document.getElementById('trendChart').style.display = 'none';
+    document.getElementById('chartEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('trendChart').style.display = 'block';
+  document.getElementById('chartEmpty').style.display = 'none';
+
+  // Aggregate by date
+  const byDate = {};
+  rows.forEach(r => {
+    const d = r.crawled_at;
+    if (!byDate[d]) byDate[d] = {p1:0, p2:0, p3:0, p4:0};
+    byDate[d].p1 += r.p1;
+    byDate[d].p2 += r.p2;
+    byDate[d].p3 += r.p3;
+    byDate[d].p4 += r.p4;
+  });
+
+  const dates = Object.keys(byDate).sort();
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (trendChartObj) trendChartObj.destroy();
+
+  trendChartObj = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        {
+          label: '🔴 P1 Kriittiset',
+          data: dates.map(d => byDate[d].p1),
+          borderColor: '#ff3b30',
+          backgroundColor: 'rgba(255,59,48,0.08)',
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 4,
+          fill: false,
+        },
+        {
+          label: '🟠 P2 Vakavat',
+          data: dates.map(d => byDate[d].p2),
+          borderColor: '#ff9500',
+          backgroundColor: 'rgba(255,149,0,0.08)',
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 4,
+          fill: false,
+        },
+        {
+          label: '🟡 P3 Kehityskohteet',
+          data: dates.map(d => byDate[d].p3),
+          borderColor: '#d4a017',
+          backgroundColor: 'rgba(212,160,23,0.08)',
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 4,
+          fill: false,
+        },
+        {
+          label: '🔵 P4 Seuranta',
+          data: dates.map(d => byDate[d].p4),
+          borderColor: '#007aff',
+          backgroundColor: 'rgba(0,122,255,0.08)',
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 4,
+          fill: false,
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            title: ctx => 'Crawl: ' + ctx[0].label,
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { precision: 0, font: { size: 12 } },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+        },
+        x: {
+          ticks: { font: { size: 12 } },
+          grid: { display: false },
+        }
+      }
+    }
+  });
+}
+
+// Populate chart site selector from existing errors list too
+sites.forEach(s => {
+  const chartSel = document.getElementById('chartSiteFilter');
+  if (![...chartSel.options].some(o => o.value === s)) {
+    const o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    chartSel.appendChild(o);
+  }
+});
+
+loadHistory();
 </script>
 </body>
 </html>
