@@ -324,6 +324,7 @@ async function loadStatuses() {
   }
   document.getElementById('statusLoadIndicator').textContent = 'Generated: 2026-06-03';
   renderTable();
+  updateChart();  // re-render chart now that statusMap is populated
 }
 
 async function markStatus(key, newStatus, btn) {
