@@ -1316,11 +1316,11 @@
   {
     "crawled_at": "2026-06-08",
     "site": "autodude.se",
-    "p1": 0,
+    "p1": 1,
     "p2": 0,
     "p3": 0,
     "p4": 5,
-    "total": 5
+    "total": 6
   },
   {
     "crawled_at": "2026-06-08",
