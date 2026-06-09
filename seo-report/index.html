@@ -93,21 +93,31 @@
     cursor: help;
   }
 
-  /* Ryhmittely */
-  .group-divider td { border-top: 2px solid #d0d0d5; }
-  .group-first td  { background: #f0f4ff; }
-  .group-member td { background: #f7f9ff; }
-  .group-last td   { border-bottom: 1px solid #d0d0d5; }
-  .group-first.is-fixed td, .group-member.is-fixed td { background: inherit; }
-  .multi-badge {
-    display: inline-block; margin-left: 6px;
-    padding: 1px 6px; border-radius: 10px;
-    background: #e0e8ff; color: #3355cc;
-    font-size: 10px; font-weight: 600; white-space: nowrap;
-    vertical-align: middle;
+  /* Accordion-ryhmittely */
+  .group-collapsed td {
+    background: #1c3461; color: #fff;
+    padding: 9px 12px; cursor: default;
   }
-  .member-src a { color: #888; }
-  .member-indent { color: #bbb; margin-right: 4px; font-weight: bold; }
+  .group-collapsed a, .group-src-link {
+    color: #93bbff; text-decoration: none; font-weight: 500;
+  }
+  .group-collapsed a:hover { text-decoration: underline; }
+  .group-collapsed.group-open td { background: #1a4a8a; }
+  .group-count-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    background: rgba(255,255,255,.15); color: #cce0ff;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .group-toggle-btn {
+    padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.1); color: #fff;
+    cursor: pointer; font-size: 12px; white-space: nowrap;
+  }
+  .group-toggle-btn:hover { background: rgba(255,255,255,.2); }
+  .group-item td { background: #eef3ff; padding-left: 18px; }
+  .group-item.is-fixed td { background: #eef3ff; opacity: .45; }
+  .group-item.sc-broken td { background: #fff5e6; }
+  .item-indent { color: #88a; margin-right: 5px; font-weight: bold; }
 
   .url-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .url-cell a { color: #007aff; text-decoration: none; font-family: monospace; font-size: 12px; }
@@ -468,84 +478,116 @@ function renderTable() {
     return ga.localeCompare(gb);
   });
 
-  let html = '';
-  let lastGroup = null;
+  // Annetaan jokaiselle ryhmälle numeerinen ID (vältetään URL-merkit attribuuteissa)
+  const gidMap = {};
+  let gidNext = 0;
+  sorted.forEach(e => {
+    const gk = groupKey(e);
+    if (!(gk in gidMap)) gidMap[gk] = gidNext++;
+  });
 
-  sorted.forEach((e, idx) => {
+  let html = '';
+  const renderedGroups = new Set();
+
+  sorted.forEach(e => {
     const key = errorKey(e);
     const status = statusMap[key] || 'Open';
-    const isFixed = status === 'Fixed' || status === 'Korjattu';
+    const isFixed   = status === 'Fixed' || status === 'Korjattu';
     const isScBroken = FORCE_OPEN_KEYS.has(key);
-    const btnHtml = isFixed
-      ? `<button class="status-btn fixed" data-key="${escAttr(key)}" data-action="Open">✓ Fixed</button>`
-      : `<button class="status-btn open"  data-key="${escAttr(key)}" data-action="Fixed">Mark as fixed</button>`;
     const scBadge = isScBroken
-      ? `<span class="sc-badge" title="Spot check: link still found on source page">⚠ SC</span>`
+      ? ` <span class="sc-badge" title="Spot check: link still found on source page">⚠ SC</span>`
       : '';
 
-    const gk      = groupKey(e);
-    const pg      = pageKey(e);
-    const count   = groupCounts[gk];
-    const isGrouped   = count > 1;
-    const isFirstInGroup = isGrouped && gk !== lastGroup;
-    const isMember       = isGrouped && !isFirstInGroup;
-    const nextE = sorted[idx + 1];
-    const isLastInGroup  = isGrouped && (!nextE || groupKey(nextE) !== gk);
+    const gk    = groupKey(e);
+    const pg    = pageKey(e);
+    const count = groupCounts[gk];
+    const gid   = gidMap[gk];
 
-    // Ohut erotinviiva ennen uuden ryhmän ensimmäistä riviä (tai ennen yksittäistä riviä joka seuraa ryhmää)
-    const needsDivider = lastGroup !== null && gk !== lastGroup;
+    if (count > 1) {
+      // ── RYHMÄ ──────────────────────────────────────────────────────────────
+      if (!renderedGroups.has(gk)) {
+        renderedGroups.add(gk);
+        // Kerää kaikki tämän ryhmän virheet prioriteettibadgeja varten
+        const groupErrors = sorted.filter(x => groupKey(x) === gk);
+        const uniquePrios = [...new Set(groupErrors.map(x => x['Prioriteetti']))];
+        const prioBadges  = uniquePrios.map(p => prioBadge(p)).join(' ');
+        const realSrc = e['Todellinen lähde'] || '';
+        // Collapsed header-rivi
+        html += `<tr class="group-collapsed" data-gid="${gid}">
+          <td>${e['Sivusto']}</td>
+          <td>${prioBadges}</td>
+          <td>${e['Virhetyyppi']}</td>
+          <td class="url-cell" title="${pg}">
+            <a href="${escAttr(pg)}" target="_blank" class="group-src-link">${shortUrl(pg)}</a>
+          </td>
+          <td class="url-cell">
+            ${realSrc
+              ? `<a href="${escAttr(realSrc)}" target="_blank" style="color:#34c759">${shortUrl(realSrc)}</a>`
+              : '<span style="opacity:.4">—</span>'}
+          </td>
+          <td><span class="group-count-pill">${count} broken links</span></td>
+          <td></td>
+          <td>
+            <button class="group-toggle-btn" onclick="toggleGroup(${gid}, this)">
+              Show errors ▼
+            </button>
+          </td>
+        </tr>`;
+      }
 
-    lastGroup = gk;
+      // Yksittäinen virherivi ryhmän sisällä (piilotettu oletuksena)
+      const btnHtml = isFixed
+        ? `<button class="status-btn fixed" data-key="${escAttr(key)}" data-action="Open">✓ Fixed</button>`
+        : `<button class="status-btn open"  data-key="${escAttr(key)}" data-action="Fixed">Mark as fixed</button>`;
+      html += `<tr class="group-item${isFixed ? ' is-fixed' : ''}${isScBroken ? ' sc-broken' : ''}" data-gid="${gid}" style="display:none">
+        <td></td>
+        <td>${prioBadge(e['Prioriteetti'])}</td>
+        <td>${scBadge}</td>
+        <td class="url-cell" colspan="2" title="${e['Broken URL']}">
+          <span class="item-indent">↳</span>
+          <a href="${e['Broken URL']}" target="_blank">${shortUrl(e['Broken URL'])}</a>
+        </td>
+        <td></td>
+        <td>${e['Löydetty']}</td>
+        <td>${btnHtml}</td>
+      </tr>`;
 
-    // Source URL -sarake
-    let srcCell;
-    if (isFirstInGroup) {
-      // Näytetään URL + "N issues" -badge
-      srcCell = `<td class="url-cell" title="${e['Source URL']}">
-        <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
-        <span class="multi-badge">${count} issues</span>
-      </td>`;
-    } else if (isMember) {
-      // Samainen sivu — näytetään vain ↳ symboli
-      srcCell = `<td class="url-cell member-src" title="${e['Source URL']}">
-        <span class="member-indent">↳</span>
-        <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
-      </td>`;
     } else {
-      srcCell = `<td class="url-cell" title="${e['Source URL']}">
-        <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
-      </td>`;
+      // ── YKSITTÄINEN RIVI ───────────────────────────────────────────────────
+      const btnHtml = isFixed
+        ? `<button class="status-btn fixed" data-key="${escAttr(key)}" data-action="Open">✓ Fixed</button>`
+        : `<button class="status-btn open"  data-key="${escAttr(key)}" data-action="Fixed">Mark as fixed</button>`;
+      html += `<tr class="${isFixed ? 'is-fixed' : ''}${isScBroken ? ' sc-broken' : ''}">
+        <td>${e['Sivusto']}</td>
+        <td>${prioBadge(e['Prioriteetti'])}</td>
+        <td>${e['Virhetyyppi']}${scBadge}</td>
+        <td class="url-cell" title="${e['Source URL']}">
+          <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
+        </td>
+        <td class="url-cell" title="${e['Todellinen lähde'] || ''}">
+          ${e['Todellinen lähde']
+            ? `<a href="${e['Todellinen lähde']}" target="_blank" style="color:#34c759">${shortUrl(e['Todellinen lähde'])}</a>`
+            : '<span style="color:#ccc">—</span>'}
+        </td>
+        <td class="url-cell" title="${e['Broken URL']}">
+          <a href="${e['Broken URL']}" target="_blank">${shortUrl(e['Broken URL'])}</a>
+        </td>
+        <td>${e['Löydetty']}</td>
+        <td>${btnHtml}</td>
+      </tr>`;
     }
-
-    const rowClass = [
-      isFixed       ? 'is-fixed'    : '',
-      isScBroken    ? 'sc-broken'   : '',
-      isFirstInGroup ? 'group-first' : '',
-      isMember      ? 'group-member': '',
-      isLastInGroup  ? 'group-last'  : '',
-      needsDivider   ? 'group-divider': '',
-    ].filter(Boolean).join(' ');
-
-    html += `
-    <tr class="${rowClass}">
-      <td>${e['Sivusto']}</td>
-      <td>${prioBadge(e['Prioriteetti'])}</td>
-      <td>${e['Virhetyyppi']}${scBadge}</td>
-      ${srcCell}
-      <td class="url-cell" title="${e['Todellinen lähde'] || ''}">
-        ${e['Todellinen lähde']
-          ? `<a href="${e['Todellinen lähde']}" target="_blank" style="color:#34c759">${shortUrl(e['Todellinen lähde'])}</a>`
-          : '<span style="color:#ccc">—</span>'}
-      </td>
-      <td class="url-cell" title="${e['Broken URL']}">
-        <a href="${e['Broken URL']}" target="_blank">${shortUrl(e['Broken URL'])}</a>
-      </td>
-      <td>${e['Löydetty']}</td>
-      <td>${btnHtml}</td>
-    </tr>`;
   });
 
   tbody.innerHTML = html;
+}
+
+function toggleGroup(gid, btn) {
+  const items = document.querySelectorAll(`tr.group-item[data-gid="${gid}"]`);
+  const isOpen = btn.dataset.open === '1';
+  items.forEach(r => r.style.display = isOpen ? 'none' : '');
+  btn.dataset.open = isOpen ? '0' : '1';
+  btn.textContent  = isOpen ? 'Show errors ▼' : 'Hide errors ▲';
+  btn.closest('tr').classList.toggle('group-open', !isOpen);
 }
 
 function escAttr(s) {
