@@ -94,20 +94,28 @@
   }
 
   /* Ryhmittely */
+  .group-spacer td { height: 10px; background: transparent; border: none; padding: 0; }
   .group-header td {
-    background: #eef3fb; padding: 7px 14px; border-top: 2px solid #c5d8f7;
-    font-size: 13px; white-space: nowrap; overflow: hidden;
+    background: #1d1d1f; color: #fff;
+    padding: 8px 14px; font-size: 12px;
+    border-top: 3px solid #444;
   }
-  .group-icon { color: #4a90d9; margin-right: 4px; }
+  .group-icon { color: #aaa; margin-right: 5px; }
   .group-url {
-    font-weight: 600; color: #1a6fd8; text-decoration: none; margin-right: 8px;
+    font-weight: 600; color: #82b4ff; text-decoration: none; margin-right: 10px;
+    font-size: 13px;
   }
   .group-url:hover { text-decoration: underline; }
-  .group-badges { display: inline-flex; gap: 4px; margin-right: 8px; }
-  .group-count { color: #888; font-size: 12px; }
-  .grouped-row td { background: #f8fbff; }
-  .grouped-src a { color: #999; font-size: 11px; }
-  .group-indent { color: #bbb; margin-right: 4px; font-size: 13px; }
+  .group-type {
+    background: #444; color: #ddd; border-radius: 4px;
+    padding: 1px 7px; font-size: 11px; margin-right: 8px;
+  }
+  .group-count { color: #aaa; font-size: 11px; }
+  .grouped-row td { background: #f6f8ff; }
+  .grouped-row.is-fixed td { background: #f6f8ff; }
+  .group-last td { border-bottom: 3px solid #444; }
+  .grouped-src a { color: #888; font-size: 11px; }
+  .group-indent { color: #ccc; margin-right: 4px; }
 
   .url-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .url-cell a { color: #007aff; text-decoration: none; font-family: monospace; font-size: 12px; }
@@ -447,28 +455,29 @@ function renderTable() {
     return;
   }
 
-  // Ryhmitellään source-sivun mukaan (Todellinen lähde tai Source URL)
-  const pageKey = e => e['Todellinen lähde'] || e['Source URL'] || '';
+  // Ryhmitellään: sama source-sivu JA sama virhetyyppi
+  const pageKey  = e => e['Todellinen lähde'] || e['Source URL'] || '';
+  const groupKey = e => pageKey(e) + '||' + e['Virhetyyppi'];
 
-  // Lasketaan virheet per sivu
-  const pageCounts = {};
+  // Lasketaan virheet per ryhmä
+  const groupCounts = {};
   filtered.forEach(e => {
-    const k = pageKey(e);
-    pageCounts[k] = (pageCounts[k] || 0) + 1;
+    const k = groupKey(e);
+    groupCounts[k] = (groupCounts[k] || 0) + 1;
   });
 
-  // Järjestetään: ensin sivun mukaan (ryhmät yhteen), sitten prioriteetin mukaan
+  // Järjestetään: ryhmäavain ensin, sitten prioriteetti
   const pOrder = {P1:0, P2:1, P3:2, P4:3};
   const sorted = [...filtered].sort((a, b) => {
-    const ga = pageKey(a), gb = pageKey(b);
+    const ga = groupKey(a), gb = groupKey(b);
     if (ga !== gb) return ga.localeCompare(gb);
     return (pOrder[a['Prioriteetti']] || 9) - (pOrder[b['Prioriteetti']] || 9);
   });
 
   let html = '';
-  let lastPage = null;
+  let lastGroup = null;
 
-  sorted.forEach(e => {
+  sorted.forEach((e, idx) => {
     const key = errorKey(e);
     const status = statusMap[key] || 'Open';
     const isFixed = status === 'Fixed' || status === 'Korjattu';
@@ -480,34 +489,34 @@ function renderTable() {
       ? `<span class="sc-badge" title="Spot check: link still found on source page">⚠ SC</span>`
       : '';
 
-    const pg = pageKey(e);
-    const count = pageCounts[pg];
+    const gk    = groupKey(e);
+    const pg    = pageKey(e);
+    const count = groupCounts[gk];
     const isGrouped = count > 1;
 
-    // Group header — näytetään kerran per sivu jolla on useita virheitä
-    if (isGrouped && pg !== lastPage) {
-      const pC = {P1:0, P2:0, P3:0, P4:0};
-      filtered.filter(x => pageKey(x) === pg).forEach(x => {
-        if (x['Prioriteetti'] in pC) pC[x['Prioriteetti']]++;
-      });
-      const badges = Object.entries(pC)
-        .filter(([,v]) => v > 0)
-        .map(([p,v]) => `<span class="badge badge-${p.toLowerCase()}">${v}×${p}</span>`)
-        .join(' ');
+    // Spacer ennen uutta ryhmää (ei ensimmäisen eteen)
+    if (lastGroup !== null && gk !== lastGroup) {
+      html += `<tr class="group-spacer"><td colspan="8"></td></tr>`;
+    }
+
+    // Group header — näytetään kerran per ryhmä
+    if (isGrouped && gk !== lastGroup) {
       html += `<tr class="group-header">
         <td colspan="8">
           <span class="group-icon">🔗</span>
           <a href="${escAttr(pg)}" target="_blank" class="group-url">${shortUrl(pg)}</a>
-          <span class="group-badges">${badges}</span>
+          <span class="group-type">${e['Virhetyyppi']}</span>
           <span class="group-count">${count} issues on this page</span>
         </td>
       </tr>`;
-      lastPage = pg;
-    } else if (!isGrouped) {
-      lastPage = null;
     }
+    lastGroup = gk;
 
-    // Source URL -sarake: ryhmitellyille näytetään pienenä, yksittäisille normaalisti
+    // Viimeinen rivi ryhmässä — lisätään erotinraja
+    const nextE = sorted[idx + 1];
+    const isLastInGroup = isGrouped && (!nextE || groupKey(nextE) !== gk);
+
+    // Source URL -sarake: ryhmitellyillä pieni indentti, yksittäisillä normaali
     const srcCell = isGrouped
       ? `<td class="url-cell grouped-src" title="${e['Source URL']}">
            <span class="group-indent">└</span>
@@ -518,10 +527,10 @@ function renderTable() {
          </td>`;
 
     html += `
-    <tr class="${isFixed ? 'is-fixed' : ''}${isScBroken ? ' sc-broken' : ''}${isGrouped ? ' grouped-row' : ''}">
+    <tr class="${isFixed ? 'is-fixed' : ''}${isScBroken ? ' sc-broken' : ''}${isGrouped ? ' grouped-row' : ''}${isLastInGroup ? ' group-last' : ''}">
       <td>${e['Sivusto']}</td>
       <td>${prioBadge(e['Prioriteetti'])}</td>
-      <td>${e['Virhetyyppi']}${scBadge}</td>
+      <td>${isGrouped ? '' : e['Virhetyyppi']}${scBadge}</td>
       ${srcCell}
       <td class="url-cell" title="${e['Todellinen lähde'] || ''}">
         ${e['Todellinen lähde']
