@@ -94,28 +94,20 @@
   }
 
   /* Ryhmittely */
-  .group-spacer td { height: 10px; background: transparent; border: none; padding: 0; }
-  .group-header td {
-    background: #1d1d1f; color: #fff;
-    padding: 8px 14px; font-size: 12px;
-    border-top: 3px solid #444;
+  .group-divider td { border-top: 2px solid #d0d0d5; }
+  .group-first td  { background: #f0f4ff; }
+  .group-member td { background: #f7f9ff; }
+  .group-last td   { border-bottom: 1px solid #d0d0d5; }
+  .group-first.is-fixed td, .group-member.is-fixed td { background: inherit; }
+  .multi-badge {
+    display: inline-block; margin-left: 6px;
+    padding: 1px 6px; border-radius: 10px;
+    background: #e0e8ff; color: #3355cc;
+    font-size: 10px; font-weight: 600; white-space: nowrap;
+    vertical-align: middle;
   }
-  .group-icon { color: #aaa; margin-right: 5px; }
-  .group-url {
-    font-weight: 600; color: #82b4ff; text-decoration: none; margin-right: 10px;
-    font-size: 13px;
-  }
-  .group-url:hover { text-decoration: underline; }
-  .group-type {
-    background: #444; color: #ddd; border-radius: 4px;
-    padding: 1px 7px; font-size: 11px; margin-right: 8px;
-  }
-  .group-count { color: #aaa; font-size: 11px; }
-  .grouped-row td { background: #f6f8ff; }
-  .grouped-row.is-fixed td { background: #f6f8ff; }
-  .group-last td { border-bottom: 3px solid #444; }
-  .grouped-src a { color: #888; font-size: 11px; }
-  .group-indent { color: #ccc; margin-right: 4px; }
+  .member-src a { color: #888; }
+  .member-indent { color: #bbb; margin-right: 4px; font-weight: bold; }
 
   .url-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .url-cell a { color: #007aff; text-decoration: none; font-family: monospace; font-size: 12px; }
@@ -491,48 +483,54 @@ function renderTable() {
       ? `<span class="sc-badge" title="Spot check: link still found on source page">⚠ SC</span>`
       : '';
 
-    const gk    = groupKey(e);
-    const pg    = pageKey(e);
-    const count = groupCounts[gk];
-    const isGrouped = count > 1;
+    const gk      = groupKey(e);
+    const pg      = pageKey(e);
+    const count   = groupCounts[gk];
+    const isGrouped   = count > 1;
+    const isFirstInGroup = isGrouped && gk !== lastGroup;
+    const isMember       = isGrouped && !isFirstInGroup;
+    const nextE = sorted[idx + 1];
+    const isLastInGroup  = isGrouped && (!nextE || groupKey(nextE) !== gk);
 
-    // Spacer ennen uutta ryhmää (ei ensimmäisen eteen)
-    if (lastGroup !== null && gk !== lastGroup) {
-      html += `<tr class="group-spacer"><td colspan="8"></td></tr>`;
-    }
+    // Ohut erotinviiva ennen uuden ryhmän ensimmäistä riviä (tai ennen yksittäistä riviä joka seuraa ryhmää)
+    const needsDivider = lastGroup !== null && gk !== lastGroup;
 
-    // Group header — näytetään kerran per ryhmä
-    if (isGrouped && gk !== lastGroup) {
-      html += `<tr class="group-header">
-        <td colspan="8">
-          <span class="group-icon">🔗</span>
-          <a href="${escAttr(pg)}" target="_blank" class="group-url">${shortUrl(pg)}</a>
-          <span class="group-type">${e['Virhetyyppi']}</span>
-          <span class="group-count">${count} issues on this page</span>
-        </td>
-      </tr>`;
-    }
     lastGroup = gk;
 
-    // Viimeinen rivi ryhmässä — lisätään erotinraja
-    const nextE = sorted[idx + 1];
-    const isLastInGroup = isGrouped && (!nextE || groupKey(nextE) !== gk);
+    // Source URL -sarake
+    let srcCell;
+    if (isFirstInGroup) {
+      // Näytetään URL + "N issues" -badge
+      srcCell = `<td class="url-cell" title="${e['Source URL']}">
+        <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
+        <span class="multi-badge">${count} issues</span>
+      </td>`;
+    } else if (isMember) {
+      // Samainen sivu — näytetään vain ↳ symboli
+      srcCell = `<td class="url-cell member-src" title="${e['Source URL']}">
+        <span class="member-indent">↳</span>
+        <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
+      </td>`;
+    } else {
+      srcCell = `<td class="url-cell" title="${e['Source URL']}">
+        <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
+      </td>`;
+    }
 
-    // Source URL -sarake: ryhmitellyillä pieni indentti, yksittäisillä normaali
-    const srcCell = isGrouped
-      ? `<td class="url-cell grouped-src" title="${e['Source URL']}">
-           <span class="group-indent">└</span>
-           <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
-         </td>`
-      : `<td class="url-cell" title="${e['Source URL']}">
-           <a href="${e['Source URL']}" target="_blank">${shortUrl(e['Source URL'])}</a>
-         </td>`;
+    const rowClass = [
+      isFixed       ? 'is-fixed'    : '',
+      isScBroken    ? 'sc-broken'   : '',
+      isFirstInGroup ? 'group-first' : '',
+      isMember      ? 'group-member': '',
+      isLastInGroup  ? 'group-last'  : '',
+      needsDivider   ? 'group-divider': '',
+    ].filter(Boolean).join(' ');
 
     html += `
-    <tr class="${isFixed ? 'is-fixed' : ''}${isScBroken ? ' sc-broken' : ''}${isGrouped ? ' grouped-row' : ''}${isLastInGroup ? ' group-last' : ''}">
+    <tr class="${rowClass}">
       <td>${e['Sivusto']}</td>
       <td>${prioBadge(e['Prioriteetti'])}</td>
-      <td>${isGrouped ? '' : e['Virhetyyppi']}${scBadge}</td>
+      <td>${e['Virhetyyppi']}${scBadge}</td>
       ${srcCell}
       <td class="url-cell" title="${e['Todellinen lähde'] || ''}">
         ${e['Todellinen lähde']
