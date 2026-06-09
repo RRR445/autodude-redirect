@@ -466,12 +466,14 @@ function renderTable() {
     groupCounts[k] = (groupCounts[k] || 0) + 1;
   });
 
-  // Järjestetään: ryhmäavain ensin, sitten prioriteetti
+  // Järjestetään: ensin prioriteetti (P1→P4), sitten ryhmäavain (ryhmät pysyvät yhdessä)
   const pOrder = {P1:0, P2:1, P3:2, P4:3};
   const sorted = [...filtered].sort((a, b) => {
+    const pa = pOrder[a['Prioriteetti']] ?? 9;
+    const pb = pOrder[b['Prioriteetti']] ?? 9;
+    if (pa !== pb) return pa - pb;
     const ga = groupKey(a), gb = groupKey(b);
-    if (ga !== gb) return ga.localeCompare(gb);
-    return (pOrder[a['Prioriteetti']] || 9) - (pOrder[b['Prioriteetti']] || 9);
+    return ga.localeCompare(gb);
   });
 
   let html = '';
