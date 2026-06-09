@@ -95,29 +95,31 @@
 
   /* Accordion-ryhmittely */
   .group-collapsed td {
-    background: #1c3461; color: #fff;
-    padding: 9px 12px; cursor: default;
+    background: #dce8ff; color: #0f2340;
+    padding: 9px 12px;
   }
-  .group-collapsed a, .group-src-link {
-    color: #93bbff; text-decoration: none; font-weight: 500;
+  .group-collapsed:hover td { background: #ccdaf8; }
+  .group-collapsed.group-open td { background: #c4d4f5; }
+  .group-src-link {
+    color: #1a52c2; text-decoration: none; font-weight: 600;
   }
-  .group-collapsed a:hover { text-decoration: underline; }
-  .group-collapsed.group-open td { background: #1a4a8a; }
+  .group-src-link:hover { text-decoration: underline; }
+  .group-collapsed a { color: #1a52c2; }
   .group-count-pill {
     display: inline-block; padding: 2px 8px; border-radius: 10px;
-    background: rgba(255,255,255,.15); color: #cce0ff;
+    background: rgba(26,82,194,.12); color: #1a3a80;
     font-size: 11px; font-weight: 600; white-space: nowrap;
   }
   .group-toggle-btn {
-    padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,.3);
-    background: rgba(255,255,255,.1); color: #fff;
-    cursor: pointer; font-size: 12px; white-space: nowrap;
+    padding: 4px 10px; border-radius: 6px;
+    border: 1px solid #6a90d8; background: #fff;
+    color: #1a3a80; cursor: pointer; font-size: 12px; white-space: nowrap;
   }
-  .group-toggle-btn:hover { background: rgba(255,255,255,.2); }
-  .group-item td { background: #eef3ff; padding-left: 18px; }
-  .group-item.is-fixed td { background: #eef3ff; opacity: .45; }
+  .group-toggle-btn:hover { background: #eef3ff; border-color: #3a6ac8; }
+  .group-item td { background: #f0f5ff; padding-left: 18px; }
+  .group-item.is-fixed td { background: #f0f5ff; opacity: .45; }
   .group-item.sc-broken td { background: #fff5e6; }
-  .item-indent { color: #88a; margin-right: 5px; font-weight: bold; }
+  .item-indent { color: #7090c0; margin-right: 5px; font-weight: bold; }
 
   .url-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .url-cell a { color: #007aff; text-decoration: none; font-family: monospace; font-size: 12px; }
