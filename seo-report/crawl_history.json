@@ -5544,6 +5544,105 @@
     "total": 149
   },
   {
+    "crawled_at": "2026-08-15",
+    "site": "autodude.dk",
+    "p1": 20,
+    "p2": 0,
+    "p3": 0,
+    "p4": 5,
+    "total": 25
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "autodude.fi",
+    "p1": 4,
+    "p2": 0,
+    "p3": 0,
+    "p4": 35,
+    "total": 39
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "autodude.no",
+    "p1": 3,
+    "p2": 0,
+    "p3": 0,
+    "p4": 3,
+    "total": 6
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "autodude.se",
+    "p1": 6,
+    "p2": 0,
+    "p3": 0,
+    "p4": 6,
+    "total": 12
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "motivon.fi",
+    "p1": 1,
+    "p2": 0,
+    "p3": 0,
+    "p4": 0,
+    "total": 1
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "motivon.se",
+    "p1": 1,
+    "p2": 0,
+    "p3": 0,
+    "p4": 0,
+    "total": 1
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "valostore.com",
+    "p1": 2,
+    "p2": 0,
+    "p3": 0,
+    "p4": 22,
+    "total": 24
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "valostore.dk",
+    "p1": 36,
+    "p2": 0,
+    "p3": 0,
+    "p4": 11,
+    "total": 47
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "valostore.fi",
+    "p1": 48,
+    "p2": 1,
+    "p3": 0,
+    "p4": 14,
+    "total": 63
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "valostore.no",
+    "p1": 39,
+    "p2": 0,
+    "p3": 0,
+    "p4": 6,
+    "total": 45
+  },
+  {
+    "crawled_at": "2026-08-15",
+    "site": "valostore.se",
+    "p1": 126,
+    "p2": 0,
+    "p3": 0,
+    "p4": 23,
+    "total": 149
+  },
+  {
     "crawled_at": "SC 2026-06-09",
     "site": "autodude.dk",
     "p1": 2,
