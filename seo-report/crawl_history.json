@@ -6247,6 +6247,15 @@
   },
   {
     "crawled_at": "SC 2026-08-21",
+    "site": "motivon.fi",
+    "p1": 1,
+    "p2": 0,
+    "p3": 0,
+    "p4": 0,
+    "total": 1
+  },
+  {
+    "crawled_at": "SC 2026-08-21",
     "site": "valostore.de",
     "p1": 2617,
     "p2": 0,
