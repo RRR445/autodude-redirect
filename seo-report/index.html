@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO Pipeline — Report 2026-08-21</title>
+<title>SEO Pipeline — Report 2026-08-21 09:38</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
@@ -159,7 +159,7 @@
 
 <header>
   <h1>SEO Pipeline — Error Report</h1>
-  <span id="statusLoadIndicator">Generated: 2026-08-21</span>
+  <span id="statusLoadIndicator">Generated: 2026-08-21 09:38</span>
 </header>
 
 <div class="container">
@@ -391,7 +391,7 @@ async function loadStatuses() {
   } catch(e) {
     console.warn('Supabase lataus epäonnistui:', e.message);
   }
-  document.getElementById('statusLoadIndicator').textContent = 'Generated: 2026-08-21';
+  document.getElementById('statusLoadIndicator').textContent = 'Generated: 2026-08-21 09:38';
   renderTable();
   updateChart();  // re-render chart now that statusMap is populated
 }
