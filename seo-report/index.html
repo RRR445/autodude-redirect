@@ -124,8 +124,13 @@
   .url-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .url-cell a { color: #007aff; text-decoration: none; font-family: monospace; font-size: 12px; }
   .url-cell a:hover { text-decoration: underline; }
-  .admin-link { opacity: .45; font-size: 13px; margin-left: 2px; }
-  .admin-link:hover { opacity: 1; text-decoration: none !important; }
+  .admin-link {
+    display: inline-block; margin-left: 6px; padding: 0 6px;
+    font-size: 11px; font-family: -apple-system, sans-serif; line-height: 17px;
+    color: #5856d6 !important; background: #eeedfb; border: 1px solid #d5d3f3;
+    border-radius: 4px; vertical-align: 1px; white-space: nowrap;
+  }
+  .admin-link:hover { background: #5856d6; color: #fff !important; border-color: #5856d6; text-decoration: none !important; }
 
   .count-label { font-size: 13px; color: #666; margin-bottom: 12px; }
   .count-label strong { color: #1d1d1f; }
@@ -355,7 +360,7 @@ function adminLink(e) {
   const pid = PRODUCT_IDS[e['Todellinen lähde'] || e['Source URL'] || ''];
   return pid
     ? ` <a class="admin-link" href="${ADMIN_BASE}${pid}/layout" target="_blank"
-          title="Avaa tuote adminissa (#${pid})">⚙</a>`
+          title="Avaa tuote adminissa (#${pid})">Admin ↗</a>`
     : '';
 }
 let currentFilter = 'all';
