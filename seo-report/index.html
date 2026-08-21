@@ -651,18 +651,34 @@ function updateChart() {
   document.getElementById('trendChart').style.display = 'block';
   document.getElementById('chartEmpty').style.display = 'none';
 
-  // Aggregate by date
-  const byDate = {};
+  // Aggregate by date, forward-fill: sivustot crawlataan eri öinä (rullaava
+  // aikataulu), joten päivälle summataan kunkin sivuston VIIMEISIN tunnettu
+  // arvo — muuten yhteiskäyrä romahtaa päivinä joina sivustoa ei crawlattu.
+  // Spot check -rivien "SC "-etuliite riisutaan, jotta pisteet asettuvat
+  // oikeaan kohtaan aikajanaa.
+  const perSite = {};
   rows.forEach(r => {
-    const d = r.crawled_at;
-    if (!byDate[d]) byDate[d] = {p1:0, p2:0, p3:0, p4:0};
-    byDate[d].p1 += r.p1;
-    byDate[d].p2 += r.p2;
-    byDate[d].p3 += r.p3;
-    byDate[d].p4 += r.p4;
+    const d = r.crawled_at.replace(/^SC /, '');
+    if (!perSite[r.site]) perSite[r.site] = {};
+    perSite[r.site][d] = r;
+  });
+  const dates = [...new Set(rows.map(r => r.crawled_at.replace(/^SC /, '')))].sort();
+  const byDate = {};
+  const lastKnown = {};
+  dates.forEach(d => {
+    byDate[d] = {p1:0, p2:0, p3:0, p4:0};
+    Object.keys(perSite).forEach(s => {
+      if (perSite[s][d]) lastKnown[s] = perSite[s][d];
+      const v = lastKnown[s];
+      if (v) {
+        byDate[d].p1 += v.p1;
+        byDate[d].p2 += v.p2;
+        byDate[d].p3 += v.p3;
+        byDate[d].p4 += v.p4;
+      }
+    });
   });
 
-  const dates = Object.keys(byDate).sort();
   const lastDate = dates[dates.length - 1];
   const last = byDate[lastDate];
 
