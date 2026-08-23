@@ -6255,6 +6255,114 @@
     "total": 138
   },
   {
+    "crawled_at": "2026-08-23",
+    "site": "autodude.dk",
+    "p1": 23,
+    "p2": 0,
+    "p3": 0,
+    "p4": 5,
+    "total": 28
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "autodude.fi",
+    "p1": 8,
+    "p2": 0,
+    "p3": 0,
+    "p4": 35,
+    "total": 43
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "autodude.no",
+    "p1": 11,
+    "p2": 0,
+    "p3": 0,
+    "p4": 3,
+    "total": 14
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "autodude.se",
+    "p1": 15,
+    "p2": 0,
+    "p3": 0,
+    "p4": 5,
+    "total": 20
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "motivon.fi",
+    "p1": 6,
+    "p2": 0,
+    "p3": 4661,
+    "p4": 29,
+    "total": 4696
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "motivon.se",
+    "p1": 22,
+    "p2": 0,
+    "p3": 4039,
+    "p4": 23,
+    "total": 4084
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "valostore.com",
+    "p1": 2,
+    "p2": 0,
+    "p3": 0,
+    "p4": 22,
+    "total": 24
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "valostore.de",
+    "p1": 3289,
+    "p2": 9,
+    "p3": 14248,
+    "p4": 3164,
+    "total": 20710
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "valostore.dk",
+    "p1": 42,
+    "p2": 0,
+    "p3": 0,
+    "p4": 11,
+    "total": 53
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "valostore.fi",
+    "p1": 48,
+    "p2": 1,
+    "p3": 0,
+    "p4": 14,
+    "total": 63
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "valostore.no",
+    "p1": 43,
+    "p2": 0,
+    "p3": 0,
+    "p4": 7,
+    "total": 50
+  },
+  {
+    "crawled_at": "2026-08-23",
+    "site": "valostore.se",
+    "p1": 115,
+    "p2": 0,
+    "p3": 0,
+    "p4": 23,
+    "total": 138
+  },
+  {
     "crawled_at": "SC 2026-06-09",
     "site": "autodude.dk",
     "p1": 2,
@@ -6469,5 +6577,14 @@
     "p3": 4039,
     "p4": 23,
     "total": 4084
+  },
+  {
+    "crawled_at": "SC 2026-08-23",
+    "site": "valostore.de",
+    "p1": 3289,
+    "p2": 9,
+    "p3": 14248,
+    "p4": 3164,
+    "total": 20710
   }
 ]
