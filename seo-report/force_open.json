@@ -833,12 +833,6 @@
   "autodude.se||https://www.autodude.se/sv/produkt/vaxschampo_sonax_wash_wax||https://www.autodude.se/produkter/bilvardstillbehor/tvatthandskar/||404 — Rikkinäinen sivu",
   "autodude.se||https://www.autodude.se/sv/tuote/quick_detailer_gyeon_q2m_wetcoat/||https://www.autodude.se/sv/tuote/quick_detailer_gyeon_q2m_wetcoat||404 — Rikkinäinen sivu",
   "autodude.se||https://www.autodude.se/sv/underhallsvatta_bilen/||https://www.autodude.se/sv/underhallsvatta_bilen||404 — Rikkinäinen sivu",
-  "motivon.fi||https://www.dinox.fi/fi/tuote/saadettava_kasipaino_snode_6-40kg||https://www.motivon.fi/fi/tuote/saadettava_kasipaino_snode_6-40kg||404 — Rikkinäinen sivu",
-  "motivon.fi||https://www.dinox.fi/fi/tuote/suojamatto_kuntolaitteen_alle_dinox_160x80x0.6cm||https://www.motivon.fi/fi/tuote/suojamatto_kuntolaitteen_alle_dinox_160x80x0.6cm||404 — Rikkinäinen sivu",
-  "motivon.fi||https://www.dinox.fi/fi/tuote/joogamatto_dinox_cute_183x61x0.6cm||https://www.motivon.fi/fi/tuote/joogamatto_dinox_cute_183x61x0.6cm||404 — Rikkinäinen sivu",
-  "motivon.fi||https://www.motivon.fi/fi/tuote/hexagon_valo_dr_dirt_garage_sky_gen2_tilavalaisu/HSKIT551-16041||https://www.motivon.fi/fi/c/brands/drdirt||404 — Rikkinäinen sivu",
-  "motivon.fi||https://www.motivon.fi/fi/tuote/maali_dinox_mini_goal||https://www.motivon.fi/fi/c/maalit-ja-korit||404 — Rikkinäinen sivu",
-  "motivon.fi||https://www.motivon.fi/fi/tuote/hexagon_valo_dr_dirt_garage_sky_gen2_tilavalaisu||https://www.motivon.fi/fi/c/brands/drdirt||404 — Rikkinäinen sivu",
   "motivon.se||https://www.motivon.se/fi/tuote/joogasetti_dinox_korkki||https://www.motivon.se/sv/tuote/joogasetti_dinox_korkki||404 — Rikkinäinen sivu",
   "motivon.se||https://www.motivon.se/fi/tuote/hierontarulla_dinox_korkki||https://www.motivon.se/sv/tuote/hierontarulla_dinox_korkki||404 — Rikkinäinen sivu",
   "motivon.se||https://www.motivon.se/fi/tuote/joogamatto-dinox-korkki||https://www.motivon.se/sv/tuote/joogamatto-dinox-korkki||404 — Rikkinäinen sivu",
@@ -5953,5 +5947,11 @@
   "valostore.no||https://www.valostore.no/no/produkt/led_ekstralys_seeker_cyclops||https://www.valostore.fi/tuote/saadettava_tukirauta_lisavalolle||Väärä URL-rakenne (/tuote/ ilman /fi/)",
   "valostore.se||https://www.valostore.se/sv/produkt/sokljus_nitecore_tm39||https://www.valostore.se/tuote/olight_x7r/||Väärä URL-rakenne (/tuote/ ilman /fi/)",
   "valostore.fi||https://www.valostore.fi/fi/tuote/varoitusvalo_majakka_purelux_flash_beacon_m||https://www.valostore.fi/tuote/varoitusvalo_majakka_purelux_flash_s/||Väärä URL-rakenne (/tuote/ ilman /fi/)",
-  "valostore.fi||https://www.valostore.fi/fi/tuote/varoitusvalo_majakka_purelux_flash_beacon_m||https://www.valostore.fi/tuote/varoitusvalo_majakka_purelux_flash_l/||Väärä URL-rakenne (/tuote/ ilman /fi/)"
+  "valostore.fi||https://www.valostore.fi/fi/tuote/varoitusvalo_majakka_purelux_flash_beacon_m||https://www.valostore.fi/tuote/varoitusvalo_majakka_purelux_flash_l/||Väärä URL-rakenne (/tuote/ ilman /fi/)",
+  "motivon.fi||https://www.dinox.fi/fi/tuote/joogamatto_dinox_cute_183x61x0.6cm||https://www.motivon.fi/fi/tuote/joogamatto_dinox_cute_183x61x0.6cm||404 — Rikkinäinen sivu",
+  "motivon.fi||https://www.motivon.fi/fi/tuote/hexagon_valo_dr_dirt_garage_sky_gen2_tilavalaisu/HSKIT551-16041||https://www.motivon.fi/fi/c/brands/drdirt||404 — Rikkinäinen sivu",
+  "motivon.fi||https://www.motivon.fi/fi/tuote/hexagon_valo_dr_dirt_garage_sky_gen2_tilavalaisu||https://www.motivon.fi/fi/c/brands/drdirt||404 — Rikkinäinen sivu",
+  "motivon.fi||https://www.motivon.fi/fi/tuote/maali_dinox_mini_goal||https://www.motivon.fi/fi/c/maalit-ja-korit||404 — Rikkinäinen sivu",
+  "motivon.fi||https://www.dinox.fi/fi/tuote/suojamatto_kuntolaitteen_alle_dinox_160x80x0.6cm||https://www.motivon.fi/fi/tuote/suojamatto_kuntolaitteen_alle_dinox_160x80x0.6cm||404 — Rikkinäinen sivu",
+  "motivon.fi||https://www.dinox.fi/fi/tuote/saadettava_kasipaino_snode_6-40kg||https://www.motivon.fi/fi/tuote/saadettava_kasipaino_snode_6-40kg||404 — Rikkinäinen sivu"
 ]
